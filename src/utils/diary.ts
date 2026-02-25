@@ -65,32 +65,34 @@ export const getAttributeValue = (
   cellValue: number,
   energy: number,
   mass: number,
-  recommendation: Recommendation,
-  attribute: Attribute
+  recommendation?: Recommendation,
+  attribute?: Attribute
 ) => {
-  let value;
-  if (recommendation.unit === 'percent' && recommendation.perUnit === 'energy') {
-    const componentEnergy =
-      Object.entries(componentEnergyMap).find(([component]) =>
-        attribute.name.enUS?.toLocaleLowerCase().includes(component)
-      )?.[1] || 0;
-    value = ((cellValue * componentEnergy) / (energy / 1000)) * 100;
-  } else if (recommendation.unit === 'g' && recommendation.perUnit === 'MJ') {
-    value = cellValue / (energy / 1000);
-  } else if (recommendation.perUnit === 'kg') {
-    value = cellValue / (mass / 1000);
-  } else if (recommendation.unit === 'MJ') {
-    value = cellValue / 1000;
+  if (recommendation && attribute) {
+    let value;
+    if (recommendation.unit === 'percent' && recommendation.perUnit === 'energy') {
+      const componentEnergy =
+        Object.entries(componentEnergyMap).find(([component]) =>
+          attribute.name.enUS?.toLocaleLowerCase().includes(component)
+        )?.[1] || 0;
+      value = ((cellValue * componentEnergy) / (energy / 1000)) * 100;
+    } else if (recommendation.unit === 'g' && recommendation.perUnit === 'MJ') {
+      value = cellValue / (energy / 1000);
+    } else if (recommendation.perUnit === 'kg') {
+      value = cellValue / (mass / 1000);
+    } else if (recommendation.unit === 'MJ') {
+      value = cellValue / 1000;
+    }
+    return value;
   }
-  return value;
 };
 
 export const getDailyAttributeValue = (
   cellValue: number,
   energy: number,
   mass: number,
-  recommendation: Recommendation,
-  attribute: Attribute
+  recommendation?: Recommendation,
+  attribute?: Attribute
 ) => {
   const value = getAttributeValue(cellValue, energy, mass, recommendation, attribute) || cellValue;
   console.log('daily value', value, cellValue, energy, mass, recommendation, attribute);
@@ -100,14 +102,14 @@ export const getDailyAttributeValue = (
 export const getMealAttributeValue = (
   cellValue: number,
   energy: number,
-  energyRecommendation: Recommendation,
   mass: number,
-  recommendation: Recommendation,
-  attribute: Attribute
+  energyRecommendation?: Recommendation,
+  recommendation?: Recommendation,
+  attribute?: Attribute,
 ) => {
   const value =
     getAttributeValue(cellValue, energy, mass, recommendation, attribute) ||
-    (cellValue * energy) / convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
+    (cellValue * energy) / convertMeasure(energyRecommendation?.minValue, energyRecommendation?.unit, 'kJ');
   return value;
 };
 
@@ -118,15 +120,23 @@ export const compareAttributeToRecommendation = (value: number, recommendation: 
   return isGood;
 };
 
-export const getRecommendation = (attribute: Attribute, sex: string, recommendations: Recommendation[]) => {
-  const attributeRecommendations = recommendations.filter(
-    (recommendation) => recommendation.attribute?.id === attribute.id
-  );
-  const hasSex = attributeRecommendations.some((recommendation) => recommendation.sex);
-  return hasSex
-    ? attributeRecommendations.find((recommendation) => recommendation.sex === sex)
-    : attributeRecommendations[0];
+export const getRecommendation = (attribute?: Attribute, sex?: string, recommendations?: Recommendation[]) => {
+  if (attribute && sex && recommendations) {
+    const attributeRecommendations = recommendations.filter(
+      (recommendation) => recommendation.attribute?.id === attribute.id
+    );
+    const hasSex = attributeRecommendations.some((recommendation) => recommendation.sex);
+    return hasSex
+      ? attributeRecommendations.find((recommendation) => recommendation.sex === sex)
+      : attributeRecommendations[0];
+  }
 };
+
+export const getAttribute = (name: string, attributes: Attribute[]) =>
+  attributes.find(
+    (attribute) =>
+      attribute.name.fiFI && name.toLocaleLowerCase().includes(attribute.name.fiFI.toLocaleLowerCase())
+  );
 
 export const getBackgroundColor = (
   value: number,
@@ -134,14 +144,18 @@ export const getBackgroundColor = (
   attributes: Attribute[],
   recommendations: Recommendation[]
 ) => {
-  const attribute = attributes.find(
-    (attribute) =>
-      attribute.name.fiFI && attributeName.toLocaleLowerCase().includes(attribute.name.fiFI.toLocaleLowerCase())
-  );
+  const attribute = getAttribute(attributeName, attributes);
   if (attribute) {
     const recommendation = getRecommendation(attribute, 'male', recommendations);
     if (recommendation) {
       return compareAttributeToRecommendation(value, recommendation) ? 'lime' : 'red';
     }
+  }
+};
+
+export const getEnergy = (row: Record<string, string | number | null>) => {
+  const energyKey = Object.keys(row).find((key) => key.includes('energia, laskennallinen'));
+  if (energyKey) {
+    return row[energyKey];
   }
 };

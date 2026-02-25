@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import XLSX from 'xlsx';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
@@ -12,6 +12,14 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 import Paper from '@mui/material/Paper';
 import { visuallyHidden } from '@mui/utils';
 import ArrowUpward from '@mui/icons-material/ArrowUpward';
+
+import { Configuration, DefaultApi, type Attribute, type Recommendation } from './generated/product-api';
+import { getAttribute, getBackgroundColor, getDailyAttributeValue, getEnergy, getLeafEntities, getMealAttributeValue, getRecommendation } from './utils/diary';
+
+const configuration = new Configuration({
+  basePath: 'http://localhost:42809',
+});
+const defaultApi = new DefaultApi(configuration);
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -91,11 +99,31 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 }
 
 export default function EnhancedTable() {
-  const [rows, setRows] = React.useState<Record<string, string | number | null>[]>([]);
-  const [order, setOrder] = React.useState<Order>('asc');
-  const [orderBy, setOrderBy] = React.useState<string>();
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [rows, setRows] = useState<Record<string, string | number | null>[]>([]);
+  const [order, setOrder] = useState<Order>('asc');
+  const [orderBy, setOrderBy] = useState<string>();
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [attributes, setAttributes] = useState<Attribute[]>([]);
+
+  const sex = 'male';
+  const leafAttributes = getLeafEntities(attributes);
+  const energyAttribute = attributes.find((attribute) => attribute.code === 'ENERC');
+  const energyRecommendation = getRecommendation(energyAttribute, sex, recommendations);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const recommendationResponse = await defaultApi.apiRecommendationGet();
+      setRecommendations(recommendationResponse);
+
+      const attributeResponse = await defaultApi.apiAttributeGet();
+      setAttributes(attributeResponse);
+    };
+    fetchData();
+  }, []);
+
+  console.log('leafAttributes', leafAttributes);
 
   const handleRequestSort = (
     _event: React.MouseEvent<unknown>,
@@ -110,7 +138,7 @@ export default function EnhancedTable() {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
@@ -119,7 +147,7 @@ export default function EnhancedTable() {
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-  const sortedRows = React.useMemo(
+  const sortedRows = useMemo(
     () =>
       orderBy
         ? [...rows].sort(getComparator(order, orderBy))
@@ -127,7 +155,7 @@ export default function EnhancedTable() {
     [order, orderBy, rows],
   );
 
-  const visibleRows = React.useMemo(
+  const visibleRows = useMemo(
     () =>
       [...sortedRows].filter((row) => !row.parentId).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
     [page, rowsPerPage, sortedRows],
@@ -221,7 +249,24 @@ export default function EnhancedTable() {
                         <ArrowUpward />
                       </TableCell>
                       {headCells.map((headCell) => (
-                        <TableCell>{row[headCell.id]}</TableCell>
+                        <TableCell
+                          sx={{
+                            backgroundColor: getBackgroundColor(
+                              getDailyAttributeValue(
+                                Number(row[headCell.id]),
+                                Number(getEnergy(row)),
+                                Number(row['mass (g)']),
+                                getRecommendation(getAttribute(headCell.id, attributes), sex, recommendations),
+                                getAttribute(headCell.id, attributes)
+                              ),
+                              headCell.id,
+                              leafAttributes,
+                              recommendations
+                            ),
+                          }}
+                        >
+                          {row[headCell.id]}
+                        </TableCell>
                       ))}
                     </TableRow>
                     {sortedRows
@@ -233,7 +278,25 @@ export default function EnhancedTable() {
                               <ArrowUpward />
                             </TableCell>
                             {headCells.map((headCell) => (
-                              <TableCell>{meal[headCell.id]}</TableCell>
+                              <TableCell
+                                sx={{
+                                  backgroundColor: getBackgroundColor(
+                                    getMealAttributeValue(
+                                      Number(row[headCell.id]),
+                                      Number(getEnergy(row)),
+                                      Number(row['mass (g)']),
+                                      energyRecommendation,
+                                      getRecommendation(getAttribute(headCell.id, attributes), sex, recommendations),
+                                      getAttribute(headCell.id, attributes)
+                                    ),
+                                    headCell.id,
+                                    leafAttributes,
+                                    recommendations
+                                  ),
+                                }}
+                              >
+                                {meal[headCell.id]}
+                              </TableCell>
                             ))}
                           </TableRow>
                           {sortedRows
