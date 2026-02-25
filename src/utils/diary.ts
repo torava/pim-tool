@@ -93,11 +93,8 @@ export const getDailyAttributeValue = (
   mass: number,
   recommendation?: Recommendation,
   attribute?: Attribute
-) => {
-  const value = getAttributeValue(cellValue, energy, mass, recommendation, attribute) || cellValue;
-  console.log('daily value', value, cellValue, energy, mass, recommendation, attribute);
-  return value;
-};
+) =>
+  getAttributeValue(cellValue, energy, mass, recommendation, attribute) || cellValue;
 
 export const getMealAttributeValue = (
   cellValue: number,
@@ -113,12 +110,9 @@ export const getMealAttributeValue = (
   return value;
 };
 
-export const compareAttributeToRecommendation = (value: number, recommendation: Recommendation) => {
-  const isGood =
-    (!recommendation.minValue || value > recommendation.minValue) &&
-    (!recommendation.maxValue || value < recommendation.maxValue);
-  return isGood;
-};
+export const compareAttributeToRecommendation = (value: number, recommendation: Recommendation) =>
+  (!recommendation.minValue || value > recommendation.minValue) &&
+  (!recommendation.maxValue || value < recommendation.maxValue);
 
 export const getRecommendation = (attribute?: Attribute, sex?: string, recommendations?: Recommendation[]) => {
   if (attribute && sex && recommendations) {

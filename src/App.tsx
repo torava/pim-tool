@@ -11,10 +11,19 @@ import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Paper from '@mui/material/Paper';
 import { visuallyHidden } from '@mui/utils';
-import ArrowUpward from '@mui/icons-material/ArrowUpward';
+import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 
 import { Configuration, DefaultApi, type Attribute, type Recommendation } from './generated/product-api';
-import { getAttribute, getBackgroundColor, getDailyAttributeValue, getEnergy, getLeafEntities, getMealAttributeValue, getRecommendation } from './utils/diary';
+import {
+  getAttribute,
+  getBackgroundColor,
+  getDailyAttributeValue,
+  getEnergy,
+  getLeafEntities,
+  getMealAttributeValue,
+  getRecommendation,
+} from './utils/diary';
 
 const configuration = new Configuration({
   basePath: 'http://localhost:42809',
@@ -106,6 +115,7 @@ export default function EnhancedTable() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [attributes, setAttributes] = useState<Attribute[]>([]);
+  const [expanded, setExpanded] = useState<Record<number, boolean>>({});
 
   const sex = 'male';
   const leafAttributes = getLeafEntities(attributes);
@@ -245,8 +255,10 @@ export default function EnhancedTable() {
                 return (
                   <>
                     <TableRow key={row.id}>
-                      <TableCell>
-                        <ArrowUpward />
+                      <TableCell onClick={() => {
+                        setExpanded({ ...expanded, [Number(row.id)]: !expanded[Number(row.id)] })
+                      }}>
+                        {expanded[Number(row.id)] ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
                       </TableCell>
                       {headCells.map((headCell) => (
                         <TableCell
@@ -269,13 +281,15 @@ export default function EnhancedTable() {
                         </TableCell>
                       ))}
                     </TableRow>
-                    {sortedRows
+                    {expanded[Number(row.id)] && sortedRows
                       .filter((meal) => meal.parentId === row.id)
                       .map((meal) => (
                         <>
                           <TableRow key={meal.id} sx={{ pl: 4 }}>
-                            <TableCell>
-                              <ArrowUpward />
+                            <TableCell onClick={() => {
+                              setExpanded({ ...expanded, [Number(meal.id)]: !expanded[Number(meal.id)] })
+                            }}>
+                              {expanded[Number(row.id)] ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
                             </TableCell>
                             {headCells.map((headCell) => (
                               <TableCell
@@ -299,7 +313,7 @@ export default function EnhancedTable() {
                               </TableCell>
                             ))}
                           </TableRow>
-                          {sortedRows
+                          {expanded[Number(meal.id)] && sortedRows
                             .filter((food) => food.parentId === meal.id)
                             .map((food) => (
                               <TableRow key={food.id} sx={{ pl: 4 }}>
