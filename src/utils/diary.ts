@@ -153,3 +153,11 @@ export const getEnergy = (row: Record<string, string | number | null>) => {
     return row[energyKey];
   }
 };
+
+export const hasChildren = (id: number, rows: Record<string, string | number | null>[]) =>
+  rows.some((row) => row.parentId === id);
+
+export const isAllExpanded = (expanded: Record<number, boolean>, rows: Record<string, string | number | null>[]) => {
+  const parents = rows.filter((row) => hasChildren(Number(row.id), rows));
+  return parents.every((parent) => expanded[Number(parent.id)]);
+};

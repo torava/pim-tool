@@ -23,6 +23,8 @@ import {
   getLeafEntities,
   getMealAttributeValue,
   getRecommendation,
+  hasChildren,
+  isAllExpanded,
 } from './utils/diary';
 
 const configuration = new Configuration({
@@ -67,10 +69,13 @@ interface EnhancedTableProps {
   order: Order;
   orderBy?: string;
   rowCount: number;
+  rows: Record<string, string | number | null>[];
+  expanded: Record<number, boolean>;
+  setExpanded: (expanded: Record<number, boolean>) => void;
 }
 
 function EnhancedTableHead(props: EnhancedTableProps) {
-  const { headCells, order, orderBy, onRequestSort } =
+  const { headCells, order, orderBy, onRequestSort, rows, expanded, setExpanded } =
     props;
   const createSortHandler =
     (property: string) => (event: React.MouseEvent<unknown>) => {
@@ -80,7 +85,18 @@ function EnhancedTableHead(props: EnhancedTableProps) {
   return (
     <TableHead>
       <TableRow>
-        <TableCell />
+        <TableCell onClick={() => {
+          const updatedExpanded: Record<number, boolean> = {};
+          const allExpanded = isAllExpanded(expanded, rows);
+          rows.forEach((row) => {
+            if (hasChildren(Number(row.id), rows)) {
+              updatedExpanded[Number(row.id)] = !allExpanded;
+            }
+          });
+          setExpanded(updatedExpanded);
+        }}>
+          {isAllExpanded(expanded, rows) ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
+        </TableCell>
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
@@ -249,6 +265,9 @@ export default function EnhancedTable() {
               orderBy={orderBy}
               onRequestSort={handleRequestSort}
               rowCount={rows.length}
+              rows={rows}
+              expanded={expanded}
+              setExpanded={setExpanded}
             />
             <TableBody>
               {visibleRows.map((row) => {
@@ -289,7 +308,7 @@ export default function EnhancedTable() {
                             <TableCell onClick={() => {
                               setExpanded({ ...expanded, [Number(meal.id)]: !expanded[Number(meal.id)] })
                             }}>
-                              {expanded[Number(row.id)] ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
+                              {expanded[Number(meal.id)] ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
                             </TableCell>
                             {headCells.map((headCell) => (
                               <TableCell
