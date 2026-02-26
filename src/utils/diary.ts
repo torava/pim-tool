@@ -35,6 +35,9 @@ const factors: Record<string, number> = {
   Y: 24,
 };
 
+// price;7;;10.1;euro;;;;;;;;male or female under 45 years living alone average
+const PRICE_RECOMMENDATION = 10.1;
+
 export const getLeafEntities = <T extends { id: number, parentId?: number }>(entities: T[]) =>
   entities.filter((parent) => !entities.some((child) => child.parentId === parent.id));
 
@@ -132,7 +135,21 @@ export const getAttribute = (name: string, attributes: Attribute[]) =>
       attribute.name.fiFI && name.toLocaleLowerCase().includes(attribute.name.fiFI.toLocaleLowerCase())
   );
 
-export const getBackgroundColor = (
+export const compareMealPriceToRecommendation = (
+  value: number,
+  energy: number,
+  energyRecommendation?: Recommendation
+) =>
+  value <
+  (PRICE_RECOMMENDATION * energy) / convertMeasure(energyRecommendation?.minValue, energyRecommendation?.unit, 'kJ');
+
+export const getDailyPriceBackgroundColor = (value: number) =>
+  value < PRICE_RECOMMENDATION ? '#00ff00aa' : '#ff0000aa';
+
+export const getMealPriceBackgroundColor = (value: number, energy: number, energyRecommendation?: Recommendation) =>
+  compareMealPriceToRecommendation(value, energy, energyRecommendation) ? '#00ff00aa' : '#ff0000aa';
+
+export const getAttributeBackgroundColor = (
   value: number,
   attributeName: string,
   attributes: Attribute[],
@@ -142,7 +159,7 @@ export const getBackgroundColor = (
   if (attribute) {
     const recommendation = getRecommendation(attribute, 'male', recommendations);
     if (recommendation) {
-      return compareAttributeToRecommendation(value, recommendation) ? 'lime' : 'red';
+      return compareAttributeToRecommendation(value, recommendation) ? '#00ff00aa' : '#ff0000aa';
     }
   }
 };

@@ -17,11 +17,13 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import { Configuration, DefaultApi, type Attribute, type Recommendation } from './generated/product-api';
 import {
   getAttribute,
-  getBackgroundColor,
+  getAttributeBackgroundColor,
   getDailyAttributeValue,
+  getDailyPriceBackgroundColor,
   getEnergy,
   getLeafEntities,
   getMealAttributeValue,
+  getMealPriceBackgroundColor,
   getRecommendation,
   hasChildren,
   isAllExpanded,
@@ -282,18 +284,20 @@ export default function EnhancedTable() {
                       {headCells.map((headCell) => (
                         <TableCell
                           sx={{
-                            backgroundColor: getBackgroundColor(
-                              getDailyAttributeValue(
-                                Number(row[headCell.id]),
-                                Number(getEnergy(row)),
-                                Number(row['mass (g)']),
-                                getRecommendation(getAttribute(headCell.id, attributes), sex, recommendations),
-                                getAttribute(headCell.id, attributes)
+                            backgroundColor: headCell.id.toLocaleLowerCase().includes('price') ?
+                              getDailyPriceBackgroundColor(Number(row[headCell.id])) :
+                              getAttributeBackgroundColor(
+                                getDailyAttributeValue(
+                                  Number(row[headCell.id]),
+                                  Number(getEnergy(row)),
+                                  Number(row['mass (g)']),
+                                  getRecommendation(getAttribute(headCell.id, attributes), sex, recommendations),
+                                  getAttribute(headCell.id, attributes)
+                                ),
+                                headCell.id,
+                                leafAttributes,
+                                recommendations
                               ),
-                              headCell.id,
-                              leafAttributes,
-                              recommendations
-                            ),
                           }}
                         >
                           {row[headCell.id]}
@@ -305,7 +309,7 @@ export default function EnhancedTable() {
                       .map((meal) => (
                         <>
                           <TableRow key={meal.id} sx={{ pl: 4 }}>
-                            <TableCell onClick={() => {
+                            <TableCell sx={{ pl: 6 }} onClick={() => {
                               setExpanded({ ...expanded, [Number(meal.id)]: !expanded[Number(meal.id)] })
                             }}>
                               {expanded[Number(meal.id)] ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
@@ -313,19 +317,21 @@ export default function EnhancedTable() {
                             {headCells.map((headCell) => (
                               <TableCell
                                 sx={{
-                                  backgroundColor: getBackgroundColor(
-                                    getMealAttributeValue(
-                                      Number(row[headCell.id]),
-                                      Number(getEnergy(row)),
-                                      Number(row['mass (g)']),
-                                      energyRecommendation,
-                                      getRecommendation(getAttribute(headCell.id, attributes), sex, recommendations),
-                                      getAttribute(headCell.id, attributes)
+                                  backgroundColor: headCell.id.toLocaleLowerCase().includes('price') ?
+                                    getMealPriceBackgroundColor(Number(row[headCell.id]), Number(getEnergy(row)), energyRecommendation) :
+                                    getAttributeBackgroundColor(
+                                      getMealAttributeValue(
+                                        Number(row[headCell.id]),
+                                        Number(getEnergy(row)),
+                                        Number(row['mass (g)']),
+                                        energyRecommendation,
+                                        getRecommendation(getAttribute(headCell.id, attributes), sex, recommendations),
+                                        getAttribute(headCell.id, attributes)
+                                      ),
+                                      headCell.id,
+                                      leafAttributes,
+                                      recommendations
                                     ),
-                                    headCell.id,
-                                    leafAttributes,
-                                    recommendations
-                                  ),
                                 }}
                               >
                                 {meal[headCell.id]}
