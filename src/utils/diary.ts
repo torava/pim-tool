@@ -178,3 +178,5 @@ export const isAllExpanded = (expanded: Record<number, boolean>, rows: Record<st
   const parents = rows.filter((row) => hasChildren(Number(row.id), rows));
   return parents.every((parent) => expanded[Number(parent.id)]);
 };
+
+export const formatNumber = (value: number) => !value || isNaN(value) ? value : new Intl.NumberFormat('fi-FI').format(value);

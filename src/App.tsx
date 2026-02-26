@@ -16,6 +16,7 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 
 import { Configuration, DefaultApi, type Attribute, type Recommendation } from './generated/product-api';
 import {
+  formatNumber,
   getAttribute,
   getAttributeBackgroundColor,
   getDailyAttributeValue,
@@ -300,7 +301,7 @@ export default function EnhancedTable() {
                               ),
                           }}
                         >
-                          {row[headCell.id]}
+                          {formatNumber(row[headCell.id] as number)}
                         </TableCell>
                       ))}
                     </TableRow>
@@ -334,7 +335,7 @@ export default function EnhancedTable() {
                                     ),
                                 }}
                               >
-                                {meal[headCell.id]}
+                                {formatNumber(meal[headCell.id] as number)}
                               </TableCell>
                             ))}
                           </TableRow>
@@ -344,7 +345,7 @@ export default function EnhancedTable() {
                               <TableRow key={food.id} sx={{ pl: 4 }}>
                                 <TableCell />
                                 {headCells.map((headCell) => (
-                                  <TableCell>{food[headCell.id]}</TableCell>
+                                  <TableCell>{formatNumber(food[headCell.id] as number)}</TableCell>
                                 ))}
                               </TableRow>
                             ))}
