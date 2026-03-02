@@ -171,6 +171,63 @@ export default function EnhancedTable() {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+  
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
+    const reader = new FileReader()
+    const readFile = async () => {
+      const buffer = reader.result;
+      const workbook = XLSX.read(buffer);
+      const ws = workbook.Sheets[workbook.SheetNames[0]];
+      const data: Record<string, string | number>[] = XLSX.utils.sheet_to_json(ws);
+      console.log('data', data);
+      let treeData: Record<string, string | number | null>[] = [];
+      let previousMealIndex = 0;
+      let previousDayIndex = 0;
+      data.forEach((row, index) => {
+        if (!row.meal) {
+          treeData = [
+            ...treeData.slice(0, previousDayIndex),
+            ...treeData.slice(previousDayIndex).map((previousRow) =>
+              previousRow.foodid
+                ? previousRow
+                : {
+                    ...previousRow,
+                    parentId: index + 1,
+                  },
+            ),
+            {
+              id: index + 1,
+              parentId: null,
+              ...row,
+            },
+          ];
+          previousDayIndex = index + 1;
+          previousMealIndex = index + 1;
+        } else if (!row.foodid) {
+          treeData = [
+            ...treeData,
+            ...data
+              .slice(previousMealIndex, index)
+              .map((foodRow, foodIndex) => ({
+                id: previousMealIndex + foodIndex + 1,
+                parentId: index + 1,
+                ...foodRow,
+              })),
+            {
+              id: index + 1,
+              parentId: null,
+              ...row,
+            },
+          ];
+          previousMealIndex = index + 1;
+        }
+      });
+      console.log('treeData', treeData);
+      setRows(treeData);
+    };
+    reader.addEventListener('load', readFile);
+    reader.readAsArrayBuffer(event.target.files![0]);
+  };
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -199,67 +256,11 @@ export default function EnhancedTable() {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <input type="file" onChange={async (event) => {
-        const reader = new FileReader()
-        const readFile = async () => {
-          const buffer = reader.result;
-          const workbook = XLSX.read(buffer);
-          const ws = workbook.Sheets[workbook.SheetNames[0]];
-          const data: Record<string, string | number>[] = XLSX.utils.sheet_to_json(ws);
-          console.log('data', data);
-          let treeData: Record<string, string | number | null>[] = [];
-          let previousMealIndex = 0;
-          let previousDayIndex = 0;
-          data.forEach((row, index) => {
-            if (!row.meal) {
-              treeData = [
-                ...treeData.slice(0, previousDayIndex),
-                ...treeData.slice(previousDayIndex).map((previousRow) =>
-                  previousRow.foodid
-                    ? previousRow
-                    : {
-                        ...previousRow,
-                        parentId: index + 1,
-                      },
-                ),
-                {
-                  id: index + 1,
-                  parentId: null,
-                  ...row,
-                },
-              ];
-              previousDayIndex = index + 1;
-              previousMealIndex = index + 1;
-            } else if (!row.foodid) {
-              treeData = [
-                ...treeData,
-                ...data
-                  .slice(previousMealIndex, index)
-                  .map((foodRow, foodIndex) => ({
-                    id: previousMealIndex + foodIndex + 1,
-                    parentId: index + 1,
-                    ...foodRow,
-                  })),
-                {
-                  id: index + 1,
-                  parentId: null,
-                  ...row,
-                },
-              ];
-              previousMealIndex = index + 1;
-            }
-          });
-          console.log('treeData', treeData);
-          setRows(treeData);
-        };
-        reader.addEventListener('load', readFile);
-        reader.readAsArrayBuffer(event.target.files![0]);
-      }}/>
+      <input type="file" onChange={handleFileChange}/>
       <Paper sx={{ width: '100%', mb: 2 }}>
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
-            aria-labelledby="tableTitle"
             size="small"
           >
             <EnhancedTableHead
