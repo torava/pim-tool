@@ -38,8 +38,11 @@ const factors: Record<string, number> = {
 // price;7;;10.1;euro;;;;;;;;male or female under 45 years living alone average
 const PRICE_RECOMMENDATION = 10.1;
 
+export const hasChildren = (id: number, rows: Record<string, string | number | null>[]) =>
+  rows.some((row) => row.parentId === id);
+
 export const getLeafEntities = <T extends { id: number, parentId?: number }>(entities: T[]) =>
-  entities.filter((parent) => !entities.some((child) => child.parentId === parent.id));
+  entities.filter((parent) => !hasChildren(parent.id, entities));
 
 export const convertMeasure = (measure: number = 0, fromUnit?: string, toUnit?: string) => {
   let offset = 0;
@@ -132,7 +135,9 @@ export const getRecommendation = (attribute?: Attribute, sex?: string, recommend
 export const getAttribute = (name: string, attributes: Attribute[]) =>
   attributes.find(
     (attribute) =>
-      attribute.name.fiFI && name.toLocaleLowerCase().includes(attribute.name.fiFI.toLocaleLowerCase())
+      attribute.name.fiFI &&
+      name.match(/^((min|max)\.\s)?(.*)\s\((.*)\)\s\[(.*)\]$/i)?.[3].toLocaleLowerCase() ===
+        attribute.name.fiFI.toLocaleLowerCase()
   );
 
 export const compareMealPriceToRecommendation = (
@@ -170,9 +175,6 @@ export const getEnergy = (row: Record<string, string | number | null>) => {
     return row[energyKey];
   }
 };
-
-export const hasChildren = (id: number, rows: Record<string, string | number | null>[]) =>
-  rows.some((row) => row.parentId === id);
 
 export const isAllExpanded = (expanded: Record<number, boolean>, rows: Record<string, string | number | null>[]) => {
   const parents = rows.filter((row) => hasChildren(Number(row.id), rows));
