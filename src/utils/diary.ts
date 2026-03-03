@@ -45,7 +45,7 @@ const BAD_COLOR = '#ff0000aa';
 export const hasChildren = (id: number, rows: Record<string, string | number | null>[]) =>
   rows.some((row) => row.parentId === id);
 
-export const getLeafEntities = <T extends { id: number, parentId?: number }>(entities: T[]) =>
+export const getLeafEntities = <T extends { id: number; parentId?: number }>(entities: T[]) =>
   entities.filter((parent) => !hasChildren(parent.id, entities));
 
 export const convertMeasure = (measure: number = 0, fromUnit?: string, toUnit?: string) => {
@@ -103,8 +103,7 @@ export const getDailyAttributeValue = (
   mass: number,
   recommendation?: Recommendation,
   attribute?: Attribute
-) =>
-  getAttributeValue(cellValue, energy, mass, recommendation, attribute) || cellValue;
+) => getAttributeValue(cellValue, energy, mass, recommendation, attribute) || cellValue;
 
 export const getMealAttributeValue = (
   cellValue: number,
@@ -112,7 +111,7 @@ export const getMealAttributeValue = (
   mass: number,
   energyRecommendation?: Recommendation,
   recommendation?: Recommendation,
-  attribute?: Attribute,
+  attribute?: Attribute
 ) => {
   const value =
     getAttributeValue(cellValue, energy, mass, recommendation, attribute) ||
@@ -152,8 +151,7 @@ export const compareMealPriceToRecommendation = (
   value <
   (PRICE_RECOMMENDATION * energy) / convertMeasure(energyRecommendation?.minValue, energyRecommendation?.unit, 'kJ');
 
-export const getDailyPriceBackgroundColor = (value: number) =>
-  value < PRICE_RECOMMENDATION ? GOOD_COLOR : BAD_COLOR;
+export const getDailyPriceBackgroundColor = (value: number) => (value < PRICE_RECOMMENDATION ? GOOD_COLOR : BAD_COLOR);
 
 export const getMealPriceBackgroundColor = (value: number, energy: number, energyRecommendation?: Recommendation) =>
   compareMealPriceToRecommendation(value, energy, energyRecommendation) ? GOOD_COLOR : BAD_COLOR;
@@ -164,7 +162,7 @@ export const getAttributeBackgroundColor = (
   attributes: Attribute[],
   recommendations: Recommendation[],
   sex?: Sex,
-  locale?: Locale,
+  locale?: Locale
 ) => {
   const attribute = getAttribute(attributeName, attributes, locale);
   if (attribute) {
@@ -176,7 +174,10 @@ export const getAttributeBackgroundColor = (
 };
 
 export const getEnergy = (row: Record<string, string | number | null>) => {
-  const energyKey = Object.keys(row).find((key) => key.includes('energia, laskennallinen'));
+  const energyKey = Object.keys(row).find(
+    (key) =>
+      key.includes('energy,calculated') || key.includes('energia, laskennallinen') || key.includes('energi, beräknad')
+  );
   if (energyKey) {
     return row[energyKey];
   }
@@ -187,4 +188,5 @@ export const isAllExpanded = (expanded: Record<number, boolean>, rows: Record<st
   return parents.every((parent) => expanded[Number(parent.id)]);
 };
 
-export const formatNumber = (value: number, locale?: Locale) => !value || isNaN(value) ? value : new Intl.NumberFormat(locale).format(value);
+export const formatNumber = (value: number, locale?: Locale) =>
+  !value || isNaN(value) ? value : new Intl.NumberFormat(locale).format(value);
