@@ -21,7 +21,7 @@ import {
   getLeafEntities,
 } from '../utils/diary';
 import type { Attribute, Recommendation } from '../generated/product-api';
-import type { Sex } from '../App';
+import type { Sex } from './App';
 import DiaryTableHead from './DiaryTableHead';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {

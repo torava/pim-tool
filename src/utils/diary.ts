@@ -1,4 +1,4 @@
-import type { Sex } from '../App';
+import type { Sex } from '../components/App';
 import type { Attribute, Recommendation } from '../generated/product-api';
 
 /**

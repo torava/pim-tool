@@ -3,8 +3,8 @@ import XLSX from 'xlsx';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 
-import { Configuration, DefaultApi, type Attribute, type Recommendation } from './generated/product-api';
-import DiaryTable from './components/DiaryTable';
+import { Configuration, DefaultApi, type Attribute, type Recommendation } from '../generated/product-api';
+import DiaryTable from './DiaryTable';
 import { MenuItem, Select } from '@mui/material';
 
 const configuration = new Configuration({
