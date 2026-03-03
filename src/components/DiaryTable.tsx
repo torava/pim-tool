@@ -95,7 +95,7 @@ export default function DiaryTable({
     ? Object.keys(rows[0]).map((key) => ({
         id: key,
         numeric: false,
-        disablePadding: true,
+        disablePadding: false,
         label: key,
       }))
     : [];
