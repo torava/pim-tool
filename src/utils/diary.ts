@@ -39,6 +39,9 @@ const factors: Record<string, number> = {
 // price;7;;10.1;euro;;;;;;;;male or female under 45 years living alone average
 const PRICE_RECOMMENDATION = 10.1;
 
+const GOOD_COLOR = '#00ff00aa';
+const BAD_COLOR = '#ff0000aa';
+
 export const hasChildren = (id: number, rows: Record<string, string | number | null>[]) =>
   rows.some((row) => row.parentId === id);
 
@@ -150,10 +153,10 @@ export const compareMealPriceToRecommendation = (
   (PRICE_RECOMMENDATION * energy) / convertMeasure(energyRecommendation?.minValue, energyRecommendation?.unit, 'kJ');
 
 export const getDailyPriceBackgroundColor = (value: number) =>
-  value < PRICE_RECOMMENDATION ? '#00ff00aa' : '#ff0000aa';
+  value < PRICE_RECOMMENDATION ? GOOD_COLOR : BAD_COLOR;
 
 export const getMealPriceBackgroundColor = (value: number, energy: number, energyRecommendation?: Recommendation) =>
-  compareMealPriceToRecommendation(value, energy, energyRecommendation) ? '#00ff00aa' : '#ff0000aa';
+  compareMealPriceToRecommendation(value, energy, energyRecommendation) ? GOOD_COLOR : BAD_COLOR;
 
 export const getAttributeBackgroundColor = (
   value: number,
@@ -167,7 +170,7 @@ export const getAttributeBackgroundColor = (
   if (attribute) {
     const recommendation = getRecommendation(attribute, sex, recommendations);
     if (recommendation) {
-      return compareAttributeToRecommendation(value, recommendation) ? '#00ff00aa' : '#ff0000aa';
+      return compareAttributeToRecommendation(value, recommendation) ? GOOD_COLOR : BAD_COLOR;
     }
   }
 };
