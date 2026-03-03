@@ -20,8 +20,15 @@ interface DiaryTableHeadProps {
   setExpanded: (expanded: Record<number, boolean>) => void;
 }
 
-export default function DiaryTableHead(props: DiaryTableHeadProps) {
-  const { headCells, order, orderBy, onRequestSort, rows, expanded, setExpanded } = props;
+export default function DiaryTableHead({
+  headCells,
+  order,
+  orderBy,
+  onRequestSort,
+  rows,
+  expanded,
+  setExpanded,
+}: DiaryTableHeadProps) {
   const createSortHandler = (property: string) => (event: React.MouseEvent<unknown>) => {
     onRequestSort(event, property);
   };
