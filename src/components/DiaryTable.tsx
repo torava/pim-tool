@@ -59,8 +59,8 @@ interface DiaryTableProps {
   rows: Record<string, string | number | null>[];
   recommendations: Recommendation[];
   attributes: Attribute[];
-  sex: Sex | '';
-  locale: Locale | '';
+  sex?: Sex;
+  locale?: Locale;
 }
 
 export default function DiaryTable({

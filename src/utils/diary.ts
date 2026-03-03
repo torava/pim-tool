@@ -133,7 +133,7 @@ export const getRecommendation = (attribute?: Attribute, sex?: string, recommend
   }
 };
 
-export const getAttribute = (name: string, attributes: Attribute[], locale: Locale | '') =>
+export const getAttribute = (name: string, attributes: Attribute[], locale?: Locale) =>
   attributes.find(
     (attribute) =>
       attribute.name[locale?.replace('-', '') as keyof AttributeName] &&
@@ -160,8 +160,8 @@ export const getAttributeBackgroundColor = (
   attributeName: string,
   attributes: Attribute[],
   recommendations: Recommendation[],
-  sex: Sex | '',
-  locale: Locale | '',
+  sex?: Sex,
+  locale?: Locale,
 ) => {
   const attribute = getAttribute(attributeName, attributes, locale);
   if (attribute) {
@@ -184,4 +184,4 @@ export const isAllExpanded = (expanded: Record<number, boolean>, rows: Record<st
   return parents.every((parent) => expanded[Number(parent.id)]);
 };
 
-export const formatNumber = (value: number, locale: Locale | '') => !value || isNaN(value) ? value : new Intl.NumberFormat(locale).format(value);
+export const formatNumber = (value: number, locale?: Locale) => !value || isNaN(value) ? value : new Intl.NumberFormat(locale).format(value);
