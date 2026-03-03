@@ -21,7 +21,7 @@ import {
   getLeafEntities,
 } from '../utils/diary';
 import type { Attribute, Recommendation } from '../generated/product-api';
-import type { Sex } from './App';
+import type { Locale, Sex } from './App';
 import DiaryTableHead from './DiaryTableHead';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -59,7 +59,8 @@ interface DiaryTableProps {
   rows: Record<string, string | number | null>[];
   recommendations: Recommendation[];
   attributes: Attribute[];
-  sex?: Sex;
+  sex: Sex | '';
+  locale: Locale | '';
 }
 
 export default function DiaryTable({
@@ -67,6 +68,7 @@ export default function DiaryTable({
   recommendations,
   attributes,
   sex,
+  locale,
 }: DiaryTableProps) {
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<string>();
@@ -151,17 +153,18 @@ export default function DiaryTable({
                                   Number(row[headCell.id]),
                                   Number(getEnergy(row)),
                                   Number(row['mass (g)']),
-                                  getRecommendation(getAttribute(headCell.id, attributes), sex, recommendations),
-                                  getAttribute(headCell.id, attributes)
+                                  getRecommendation(getAttribute(headCell.id, attributes, locale), sex, recommendations),
+                                  getAttribute(headCell.id, attributes, locale)
                                 ),
                                 headCell.id,
                                 leafAttributes,
                                 recommendations,
-                                sex
+                                sex,
+                                locale,
                               ),
                         }}
                       >
-                        {formatNumber(row[headCell.id] as number)}
+                        {formatNumber(row[headCell.id] as number, locale)}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -195,20 +198,21 @@ export default function DiaryTable({
                                           Number(row['mass (g)']),
                                           energyRecommendation,
                                           getRecommendation(
-                                            getAttribute(headCell.id, attributes),
+                                            getAttribute(headCell.id, attributes, locale),
                                             sex,
                                             recommendations
                                           ),
-                                          getAttribute(headCell.id, attributes)
+                                          getAttribute(headCell.id, attributes, locale)
                                         ),
                                         headCell.id,
                                         leafAttributes,
                                         recommendations,
-                                        sex
+                                        sex,
+                                        locale
                                       ),
                                 }}
                               >
-                                {formatNumber(meal[headCell.id] as number)}
+                                {formatNumber(meal[headCell.id] as number, locale)}
                               </TableCell>
                             ))}
                           </TableRow>
@@ -219,7 +223,7 @@ export default function DiaryTable({
                                 <TableRow key={food.id} sx={{ pl: 4 }}>
                                   <TableCell />
                                   {headCells.map((headCell) => (
-                                    <TableCell>{formatNumber(food[headCell.id] as number)}</TableCell>
+                                    <TableCell>{formatNumber(food[headCell.id] as number, locale)}</TableCell>
                                   ))}
                                 </TableRow>
                               ))}

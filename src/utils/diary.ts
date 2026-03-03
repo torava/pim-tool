@@ -1,5 +1,5 @@
-import type { Sex } from '../components/App';
-import type { Attribute, Recommendation } from '../generated/product-api';
+import type { Locale, Sex } from '../components/App';
+import type { Attribute, AttributeName, Recommendation } from '../generated/product-api';
 
 /**
  * Food component energy density, MJ/g
@@ -133,12 +133,12 @@ export const getRecommendation = (attribute?: Attribute, sex?: string, recommend
   }
 };
 
-export const getAttribute = (name: string, attributes: Attribute[]) =>
+export const getAttribute = (name: string, attributes: Attribute[], locale: Locale | '') =>
   attributes.find(
     (attribute) =>
-      attribute.name.fiFI &&
+      attribute.name[locale?.replace('-', '') as keyof AttributeName] &&
       name.match(/^((min|max)\.\s)?(.*)\s\((.*)\)\s\[(.*)\]$/i)?.[3].toLocaleLowerCase() ===
-        attribute.name.fiFI.toLocaleLowerCase()
+        attribute.name[locale?.replace('-', '') as keyof AttributeName]?.toLocaleLowerCase()
   );
 
 export const compareMealPriceToRecommendation = (
@@ -160,9 +160,10 @@ export const getAttributeBackgroundColor = (
   attributeName: string,
   attributes: Attribute[],
   recommendations: Recommendation[],
-  sex?: Sex,
+  sex: Sex | '',
+  locale: Locale | '',
 ) => {
-  const attribute = getAttribute(attributeName, attributes);
+  const attribute = getAttribute(attributeName, attributes, locale);
   if (attribute) {
     const recommendation = getRecommendation(attribute, sex, recommendations);
     if (recommendation) {
@@ -183,4 +184,4 @@ export const isAllExpanded = (expanded: Record<number, boolean>, rows: Record<st
   return parents.every((parent) => expanded[Number(parent.id)]);
 };
 
-export const formatNumber = (value: number) => !value || isNaN(value) ? value : new Intl.NumberFormat('fi-FI').format(value);
+export const formatNumber = (value: number, locale: Locale | '') => !value || isNaN(value) ? value : new Intl.NumberFormat(locale).format(value);

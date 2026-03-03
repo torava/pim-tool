@@ -8,17 +8,20 @@ import DiaryTable from './DiaryTable';
 import { MenuItem, Select } from '@mui/material';
 
 const configuration = new Configuration({
-  basePath: 'http://localhost:42809',
+  basePath: import.meta.env.VITE_BASE_PATH || 'http://localhost:42809',
 });
 const defaultApi = new DefaultApi(configuration);
 
 export type Sex = 'female' | 'male';
 
+export type Locale = 'fi-FI' | 'en-US' | 'sv-SV';
+
 export default function App() {
   const [rows, setRows] = useState<Record<string, string | number | null>[]>([]);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [attributes, setAttributes] = useState<Attribute[]>([]);
-  const [sex, setSex] = useState<Sex>();
+  const [sex, setSex] = useState<Sex | ''>('');
+  const [locale, setLocale] = useState<Locale | ''>('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -89,8 +92,22 @@ export default function App() {
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
+        <Select
+          value={locale}
+          onChange={(event) => setLocale(event.target.value)}
+          displayEmpty
+          size="small"
+          sx={{ mr: 1 }}
+        >
+          <MenuItem disabled value="">
+            <em>Locale</em>
+          </MenuItem>
+          <MenuItem value="fi-FI">Finnish</MenuItem>
+          <MenuItem value="en-US">English</MenuItem>
+          <MenuItem value="sv-SV">Swedish</MenuItem>
+        </Select>
         <Select value={sex} onChange={(event) => setSex(event.target.value)} displayEmpty size="small" sx={{ mr: 1 }}>
-          <MenuItem disabled>
+          <MenuItem disabled value="">
             <em>Sex</em>
           </MenuItem>
           <MenuItem value="female">Female</MenuItem>
@@ -98,7 +115,7 @@ export default function App() {
         </Select>
         <input type="file" onChange={handleFileChange} />
         {!!rows.length && (
-          <DiaryTable rows={rows} recommendations={recommendations} attributes={attributes} sex={sex} />
+          <DiaryTable rows={rows} recommendations={recommendations} attributes={attributes} sex={sex} locale={locale} />
         )}
       </Paper>
     </Box>
