@@ -156,7 +156,8 @@ export default function DiaryTable({
                                 ),
                                 headCell.id,
                                 leafAttributes,
-                                recommendations
+                                recommendations,
+                                sex
                               ),
                         }}
                       >
@@ -202,7 +203,8 @@ export default function DiaryTable({
                                         ),
                                         headCell.id,
                                         leafAttributes,
-                                        recommendations
+                                        recommendations,
+                                        sex
                                       ),
                                 }}
                               >

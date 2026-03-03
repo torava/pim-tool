@@ -1,3 +1,4 @@
+import type { Sex } from '../App';
 import type { Attribute, Recommendation } from '../generated/product-api';
 
 /**
@@ -158,11 +159,12 @@ export const getAttributeBackgroundColor = (
   value: number,
   attributeName: string,
   attributes: Attribute[],
-  recommendations: Recommendation[]
+  recommendations: Recommendation[],
+  sex?: Sex,
 ) => {
   const attribute = getAttribute(attributeName, attributes);
   if (attribute) {
-    const recommendation = getRecommendation(attribute, 'male', recommendations);
+    const recommendation = getRecommendation(attribute, sex, recommendations);
     if (recommendation) {
       return compareAttributeToRecommendation(value, recommendation) ? '#00ff00aa' : '#ff0000aa';
     }

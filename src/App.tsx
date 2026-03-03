@@ -5,6 +5,7 @@ import Paper from '@mui/material/Paper';
 
 import { Configuration, DefaultApi, type Attribute, type Recommendation } from './generated/product-api';
 import DiaryTable from './components/DiaryTable';
+import { MenuItem, Select } from '@mui/material';
 
 const configuration = new Configuration({
   basePath: 'http://localhost:42809',
@@ -17,8 +18,7 @@ export default function App() {
   const [rows, setRows] = useState<Record<string, string | number | null>[]>([]);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [attributes, setAttributes] = useState<Attribute[]>([]);
-
-  const sex = 'male';
+  const [sex, setSex] = useState<Sex>();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -89,8 +89,17 @@ export default function App() {
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
+        <Select value={sex} onChange={(event) => setSex(event.target.value)} displayEmpty size="small" sx={{ mr: 1 }}>
+          <MenuItem disabled>
+            <em>Sex</em>
+          </MenuItem>
+          <MenuItem value="female">Female</MenuItem>
+          <MenuItem value="male">Male</MenuItem>
+        </Select>
         <input type="file" onChange={handleFileChange} />
-        {!!rows.length && <DiaryTable rows={rows} recommendations={recommendations} attributes={attributes} sex={sex} />}
+        {!!rows.length && (
+          <DiaryTable rows={rows} recommendations={recommendations} attributes={attributes} sex={sex} />
+        )}
       </Paper>
     </Box>
   );
