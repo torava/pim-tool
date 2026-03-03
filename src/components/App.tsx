@@ -91,7 +91,7 @@ export default function App() {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Paper sx={{ width: '100%', mb: 2 }}>
+      <Paper sx={{ width: '100%', overflow: 'hidden', mb: 2 }}>
         <Select
           value={locale}
           onChange={(event) => setLocale(event.target.value)}

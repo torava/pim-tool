@@ -119,8 +119,8 @@ export default function DiaryTable({
 
   return (
     <>
-      <TableContainer>
-        <Table sx={{ minWidth: 750 }} size="small">
+      <TableContainer sx={{ maxHeight: 700 }}>
+        <Table sx={{ minWidth: 750 }} size="small" stickyHeader>
           <DiaryTableHead
             headCells={headCells}
             order={order}
