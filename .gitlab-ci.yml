@@ -42,7 +42,7 @@ build artifact:
     - npm run build
   artifacts:
     paths:
-      - build/
+      - dist/
     when: always
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
@@ -60,7 +60,7 @@ deploy s3:
         aud: pim-tool-gl-s3-aud
   script:
     - *assume_role
-    - aws s3 sync build/ s3://$S3_BUCKET
+    - aws s3 sync dist/ s3://$S3_BUCKET
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       when: always
