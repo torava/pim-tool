@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config';
+import { playwright } from '@vitest/browser-playwright';
 import react from '@vitejs/plugin-react';
 import { webdriverio } from '@vitest/browser-webdriverio';
 
@@ -7,10 +8,17 @@ export default defineConfig({
   test: {
     browser: {
       enabled: true,
-      provider: webdriverio(),
+      provider: playwright(),
       instances: [
         {
-          browser: 'chrome',
+          browser: 'chromium',
+          provider: webdriverio({
+            capabilities: {
+              'goog:chromeOptions': {
+                args: ['disable-gpu', 'no-sandbox', 'disable-setuid-sandbox'],
+              },
+            },
+          }),
         },
       ],
     },
