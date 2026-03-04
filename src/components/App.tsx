@@ -25,11 +25,15 @@ export default function App() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const recommendationResponse = await defaultApi.apiRecommendationGet();
-      setRecommendations(recommendationResponse);
+      try {
+        const recommendationResponse = await defaultApi.apiRecommendationGet();
+        setRecommendations(recommendationResponse);
 
-      const attributeResponse = await defaultApi.apiAttributeGet();
-      setAttributes(attributeResponse);
+        const attributeResponse = await defaultApi.apiAttributeGet();
+        setAttributes(attributeResponse);
+      } catch (error) {
+        console.error(error);
+      }
     };
     fetchData();
   }, []);
@@ -113,7 +117,7 @@ export default function App() {
           <MenuItem value="female">Female</MenuItem>
           <MenuItem value="male">Male</MenuItem>
         </Select>
-        <input type="file" onChange={handleFileChange} />
+        <input type="file" onChange={handleFileChange} data-testid="file" />
         {!!rows.length && (
           <DiaryTable rows={rows} recommendations={recommendations} attributes={attributes} sex={sex || undefined} locale={locale || undefined} />
         )}
