@@ -21,7 +21,7 @@ unit test:
   stage: test
   before_script:
     - npm ci
-    - npx playwright install
+    - npx playwright install --with-deps
   script:
     - npm run test
   coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/

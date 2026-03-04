@@ -7,11 +7,7 @@ export default defineConfig({
   test: {
     browser: {
       enabled: true,
-      provider: playwright({
-        launchOptions: {
-          args: ['--disable-extensions'],
-        },
-      }),
+      provider: playwright(),
       instances: [
         {
           browser: 'chromium',
