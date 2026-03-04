@@ -22,7 +22,7 @@ unit test:
   before_script:
     - npm ci
   script:
-    - npm run test:ci
+    - npm run test
   coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/
   artifacts:
     paths:
