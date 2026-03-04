@@ -20,6 +20,7 @@ unit test:
   image: node:latest
   stage: test
   before_script:
+    - npx playwright install
     - npm ci
   script:
     - npm run test
