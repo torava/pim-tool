@@ -8,7 +8,7 @@ import DiaryTable from './DiaryTable';
 import { MenuItem, Select } from '@mui/material';
 
 const configuration = new Configuration({
-  basePath: import.meta.env.VITE_BASE_PATH || 'http://localhost:42809',
+  basePath: import.meta.env.VITE_API_BASE_PATH || 'http://localhost:42809',
 });
 const defaultApi = new DefaultApi(configuration);
 
