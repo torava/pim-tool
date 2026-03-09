@@ -1,26 +1,25 @@
-import React from 'react';
-import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 
+import type { Recommendation, Attribute } from '../../generated/product-api';
 import {
-  getRecommendation,
-  getDailyPriceBackgroundColor,
-  getAttributeBackgroundColor,
-  getDailyAttributeValue,
+  getMealPriceBackgroundColor,
   getEnergy,
+  getAttributeBackgroundColor,
+  getMealAttributeValue,
+  getRecommendation,
   getAttribute,
   formatNumber,
   getLeafEntities,
 } from '../../utils/diary';
-import type { Recommendation, Attribute } from '../../generated/product-api';
 import type { Sex, Locale } from '../App';
 import type { HeadCell } from './DiaryTable';
-import { MealRow } from './MealRow';
 
-interface DayRowProps {
-  row: Record<string, string | number | null>;
+interface MealRowProps {
+  day: Record<string, string | number | null>;
+  meal: Record<string, string | number | null>;
   sortedRows: Record<string, string | number | null>[];
   recommendations: Recommendation[];
   attributes: Attribute[];
@@ -31,8 +30,9 @@ interface DayRowProps {
   headCells: HeadCell[];
 }
 
-export function DayRow({
-  row,
+export function MealRow({
+  day,
+  meal,
   sortedRows,
   recommendations,
   attributes,
@@ -41,29 +41,33 @@ export function DayRow({
   expanded,
   onExpand,
   headCells,
-}: DayRowProps) {
+}: MealRowProps) {
   const leafAttributes = getLeafEntities(attributes);
+  const energyAttribute = attributes.find((attribute) => attribute.code === 'ENERC');
+  const energyRecommendation = getRecommendation(energyAttribute, sex, recommendations);
   return (
-    <React.Fragment key={row.id}>
-      <TableRow key={row.id}>
+    <>
+      <TableRow key={meal.id} sx={{ pl: 4 }}>
         <TableCell
+          sx={{ pl: 6 }}
           onClick={() => {
-            onExpand({ ...expanded, [Number(row.id)]: !expanded[Number(row.id)] });
+            onExpand({ ...expanded, [Number(meal.id)]: !expanded[Number(meal.id)] });
           }}
         >
-          {expanded[Number(row.id)] ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
+          {expanded[Number(meal.id)] ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
         </TableCell>
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
             sx={{
               backgroundColor: headCell.id.toLocaleLowerCase().includes('price')
-                ? getDailyPriceBackgroundColor(Number(row[headCell.id]))
+                ? getMealPriceBackgroundColor(Number(day[headCell.id]), Number(getEnergy(day)), energyRecommendation)
                 : getAttributeBackgroundColor(
-                    getDailyAttributeValue(
-                      Number(row[headCell.id]),
-                      Number(getEnergy(row)),
-                      Number(row['mass (g)']),
+                    getMealAttributeValue(
+                      Number(day[headCell.id]),
+                      Number(getEnergy(day)),
+                      Number(day['mass (g)']),
+                      energyRecommendation,
                       getRecommendation(getAttribute(headCell.id, attributes, locale), sex, recommendations),
                       getAttribute(headCell.id, attributes, locale)
                     ),
@@ -75,28 +79,21 @@ export function DayRow({
                   ),
             }}
           >
-            {formatNumber(row[headCell.id] as number, locale)}
+            {formatNumber(meal[headCell.id] as number, locale)}
           </TableCell>
         ))}
       </TableRow>
-      {expanded[Number(row.id)] &&
+      {expanded[Number(meal.id)] &&
         sortedRows
-          .filter((meal) => meal.parentId === row.id)
-          .map((meal) => (
-            <MealRow
-              key={meal.id}
-              day={row}
-              meal={meal}
-              sortedRows={sortedRows}
-              recommendations={recommendations}
-              attributes={attributes}
-              sex={sex}
-              locale={locale}
-              expanded={expanded}
-              onExpand={onExpand}
-              headCells={headCells}
-            />
+          .filter((food) => food.parentId === meal.id)
+          .map((food) => (
+            <TableRow key={food.id} sx={{ pl: 4 }}>
+              <TableCell />
+              {headCells.map((headCell) => (
+                <TableCell>{formatNumber(food[headCell.id] as number, locale)}</TableCell>
+              ))}
+            </TableRow>
           ))}
-    </React.Fragment>
+    </>
   );
 }
