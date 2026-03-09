@@ -6,8 +6,9 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import { Box, TableSortLabel } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 
-import { hasChildren, isAllExpanded } from '../utils/diary';
-import type { HeadCell, Order } from './DiaryTable';
+import { hasChildren, isAllExpanded } from '../../utils/diary';
+import type { HeadCell } from './DayRow';
+import type { Order } from './DiaryTable';
 
 interface DiaryTableHeadProps {
   headCells: HeadCell[];
