@@ -38,11 +38,8 @@ export type Order = 'asc' | 'desc';
 
 function getComparator<Key extends PropertyKey>(
   order: Order,
-  orderBy: Key,
-): (
-  a: { [key in Key]: number | string | null },
-  b: { [key in Key]: number | string | null },
-) => number {
+  orderBy: Key
+): (a: { [key in Key]: number | string | null }, b: { [key in Key]: number | string | null }) => number {
   return order === 'desc'
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
@@ -63,13 +60,7 @@ interface DiaryTableProps {
   locale?: Locale;
 }
 
-export default function DiaryTable({
-  rows,
-  recommendations,
-  attributes,
-  sex,
-  locale,
-}: DiaryTableProps) {
+export default function DiaryTable({ rows, recommendations, attributes, sex, locale }: DiaryTableProps) {
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<string>();
   const [page, setPage] = useState(0);
@@ -132,106 +123,106 @@ export default function DiaryTable({
             setExpanded={setExpanded}
           />
           <TableBody>
-            {visibleRows.map((row) => {
-              return (
-                <>
-                  <TableRow key={row.id}>
+            {visibleRows.map((row) => (
+              <React.Fragment key={row.id}>
+                <TableRow key={row.id}>
+                  <TableCell
+                    onClick={() => {
+                      setExpanded({ ...expanded, [Number(row.id)]: !expanded[Number(row.id)] });
+                    }}
+                  >
+                    {expanded[Number(row.id)] ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
+                  </TableCell>
+                  {headCells.map((headCell) => (
                     <TableCell
-                      onClick={() => {
-                        setExpanded({ ...expanded, [Number(row.id)]: !expanded[Number(row.id)] });
+                      key={headCell.id}
+                      sx={{
+                        backgroundColor: headCell.id.toLocaleLowerCase().includes('price')
+                          ? getDailyPriceBackgroundColor(Number(row[headCell.id]))
+                          : getAttributeBackgroundColor(
+                              getDailyAttributeValue(
+                                Number(row[headCell.id]),
+                                Number(getEnergy(row)),
+                                Number(row['mass (g)']),
+                                getRecommendation(getAttribute(headCell.id, attributes, locale), sex, recommendations),
+                                getAttribute(headCell.id, attributes, locale)
+                              ),
+                              headCell.id,
+                              leafAttributes,
+                              recommendations,
+                              sex,
+                              locale
+                            ),
                       }}
                     >
-                      {expanded[Number(row.id)] ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
+                      {formatNumber(row[headCell.id] as number, locale)}
                     </TableCell>
-                    {headCells.map((headCell) => (
-                      <TableCell
-                        sx={{
-                          backgroundColor: headCell.id.toLocaleLowerCase().includes('price')
-                            ? getDailyPriceBackgroundColor(Number(row[headCell.id]))
-                            : getAttributeBackgroundColor(
-                                getDailyAttributeValue(
-                                  Number(row[headCell.id]),
-                                  Number(getEnergy(row)),
-                                  Number(row['mass (g)']),
-                                  getRecommendation(getAttribute(headCell.id, attributes, locale), sex, recommendations),
-                                  getAttribute(headCell.id, attributes, locale)
-                                ),
-                                headCell.id,
-                                leafAttributes,
-                                recommendations,
-                                sex,
-                                locale,
-                              ),
-                        }}
-                      >
-                        {formatNumber(row[headCell.id] as number, locale)}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                  {expanded[Number(row.id)] &&
-                    sortedRows
-                      .filter((meal) => meal.parentId === row.id)
-                      .map((meal) => (
-                        <>
-                          <TableRow key={meal.id} sx={{ pl: 4 }}>
+                  ))}
+                </TableRow>
+                {expanded[Number(row.id)] &&
+                  sortedRows
+                    .filter((meal) => meal.parentId === row.id)
+                    .map((meal) => (
+                      <>
+                        <TableRow key={meal.id} sx={{ pl: 4 }}>
+                          <TableCell
+                            sx={{ pl: 6 }}
+                            onClick={() => {
+                              setExpanded({ ...expanded, [Number(meal.id)]: !expanded[Number(meal.id)] });
+                            }}
+                          >
+                            {expanded[Number(meal.id)] ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
+                          </TableCell>
+                          {headCells.map((headCell) => (
                             <TableCell
-                              sx={{ pl: 6 }}
-                              onClick={() => {
-                                setExpanded({ ...expanded, [Number(meal.id)]: !expanded[Number(meal.id)] });
-                              }}
-                            >
-                              {expanded[Number(meal.id)] ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
-                            </TableCell>
-                            {headCells.map((headCell) => (
-                              <TableCell
-                                sx={{
-                                  backgroundColor: headCell.id.toLocaleLowerCase().includes('price')
-                                    ? getMealPriceBackgroundColor(
+                              key={headCell.id}
+                              sx={{
+                                backgroundColor: headCell.id.toLocaleLowerCase().includes('price')
+                                  ? getMealPriceBackgroundColor(
+                                      Number(row[headCell.id]),
+                                      Number(getEnergy(row)),
+                                      energyRecommendation
+                                    )
+                                  : getAttributeBackgroundColor(
+                                      getMealAttributeValue(
                                         Number(row[headCell.id]),
                                         Number(getEnergy(row)),
-                                        energyRecommendation
-                                      )
-                                    : getAttributeBackgroundColor(
-                                        getMealAttributeValue(
-                                          Number(row[headCell.id]),
-                                          Number(getEnergy(row)),
-                                          Number(row['mass (g)']),
-                                          energyRecommendation,
-                                          getRecommendation(
-                                            getAttribute(headCell.id, attributes, locale),
-                                            sex,
-                                            recommendations
-                                          ),
-                                          getAttribute(headCell.id, attributes, locale)
+                                        Number(row['mass (g)']),
+                                        energyRecommendation,
+                                        getRecommendation(
+                                          getAttribute(headCell.id, attributes, locale),
+                                          sex,
+                                          recommendations
                                         ),
-                                        headCell.id,
-                                        leafAttributes,
-                                        recommendations,
-                                        sex,
-                                        locale
+                                        getAttribute(headCell.id, attributes, locale)
                                       ),
-                                }}
-                              >
-                                {formatNumber(meal[headCell.id] as number, locale)}
-                              </TableCell>
+                                      headCell.id,
+                                      leafAttributes,
+                                      recommendations,
+                                      sex,
+                                      locale
+                                    ),
+                              }}
+                            >
+                              {formatNumber(meal[headCell.id] as number, locale)}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                        {expanded[Number(meal.id)] &&
+                          sortedRows
+                            .filter((food) => food.parentId === meal.id)
+                            .map((food) => (
+                              <TableRow key={food.id} sx={{ pl: 4 }}>
+                                <TableCell />
+                                {headCells.map((headCell) => (
+                                  <TableCell>{formatNumber(food[headCell.id] as number, locale)}</TableCell>
+                                ))}
+                              </TableRow>
                             ))}
-                          </TableRow>
-                          {expanded[Number(meal.id)] &&
-                            sortedRows
-                              .filter((food) => food.parentId === meal.id)
-                              .map((food) => (
-                                <TableRow key={food.id} sx={{ pl: 4 }}>
-                                  <TableCell />
-                                  {headCells.map((headCell) => (
-                                    <TableCell>{formatNumber(food[headCell.id] as number, locale)}</TableCell>
-                                  ))}
-                                </TableRow>
-                              ))}
-                        </>
-                      ))}
-                </>
-              );
-            })}
+                      </>
+                    ))}
+              </React.Fragment>
+            ))}
             {emptyRows > 0 && (
               <TableRow
                 style={{
