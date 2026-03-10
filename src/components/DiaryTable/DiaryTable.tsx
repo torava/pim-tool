@@ -136,7 +136,7 @@ export default function DiaryTable({ rows, recommendations, attributes, sex, loc
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[5, 10, 25, 10000]}
+        rowsPerPageOptions={[5, 10, 25, 100, 1000]}
         component="div"
         count={rows.filter((row) => !row.parentId).length}
         rowsPerPage={rowsPerPage}
