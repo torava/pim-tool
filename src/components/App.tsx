@@ -119,7 +119,13 @@ export default function App() {
         </Select>
         <input type="file" onChange={handleFileChange} data-testid="file" />
         {!!rows.length && (
-          <DiaryTable rows={rows} recommendations={recommendations} attributes={attributes} sex={sex || undefined} locale={locale || undefined} />
+          <DiaryTable
+            rows={rows}
+            recommendations={recommendations}
+            attributes={attributes}
+            sex={sex || undefined}
+            locale={locale || undefined}
+          />
         )}
       </Paper>
     </Box>
