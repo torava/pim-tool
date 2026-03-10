@@ -45,7 +45,6 @@ export default function App() {
       const workbook = XLSX.read(buffer);
       const ws = workbook.Sheets[workbook.SheetNames[0]];
       const data: Record<string, string | number>[] = XLSX.utils.sheet_to_json(ws);
-      console.log('data', data);
       let treeData: Record<string, string | number | null>[] = [];
       let previousMealIndex = 0;
       let previousDayIndex = 0;
@@ -86,7 +85,6 @@ export default function App() {
           previousMealIndex = index + 1;
         }
       });
-      console.log('treeData', treeData);
       setRows(treeData);
     };
     reader.addEventListener('load', readFile);
