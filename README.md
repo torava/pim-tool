@@ -1,6 +1,6 @@
 # PIM Tool
 
-An application for viewing diary files exported from [Fineli](https://fineli.fi/), the national Food Composition Database in Finland. Supports [PIM API](https://github.com/torava/pim-api) to view product information such as prices and environmental footprints in addition to ingredients with coloring based on recommendations.
+An application for viewing diary files exported from [Fineli](https://fineli.fi/), the national Food Composition Database in Finland. Supports [PIM API](https://github.com/torava/pim-api) to view product information such as prices and environmental footprints in addition to nutrient values with coloring based on recommendations.
 
 ## Try out
 
