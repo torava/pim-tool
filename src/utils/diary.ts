@@ -190,3 +190,5 @@ export const isAllExpanded = (expanded: Record<number, boolean>, rows: Record<st
 
 export const formatNumber = (value: number, locale?: Locale) =>
   !value || isNaN(value) ? value : new Intl.NumberFormat(locale).format(value);
+
+export const HIDDEN_COLUMNS = ['id', 'parentId'];

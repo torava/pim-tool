@@ -7,8 +7,7 @@ import { Box, TableSortLabel } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 
 import { hasChildren, isAllExpanded } from '../../utils/diary';
-import type { HeadCell } from './DayRow';
-import type { Order } from './DiaryTable';
+import type { HeadCell, Order } from './DiaryTable';
 
 interface DiaryTableHeadProps {
   headCells: HeadCell[];

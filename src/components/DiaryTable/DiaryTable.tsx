@@ -10,6 +10,7 @@ import type { Attribute, Recommendation } from '../../generated/product-api';
 import type { Locale, Sex } from '../App';
 import DiaryTableHead from './DiaryTableHead';
 import { DayRow } from './DayRow';
+import { HIDDEN_COLUMNS } from '../../utils/diary';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -76,6 +77,8 @@ export default function DiaryTable({ rows, recommendations, attributes, sex, loc
       }))
     : [];
 
+  const visibleHeadCells = headCells.filter((cell) => !HIDDEN_COLUMNS.includes(cell.id));
+
   const handleRequestSort = (_event: React.MouseEvent<unknown>, property: string) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -96,7 +99,7 @@ export default function DiaryTable({ rows, recommendations, attributes, sex, loc
       <TableContainer sx={{ maxHeight: 700 }}>
         <Table sx={{ minWidth: 750 }} size="small" stickyHeader>
           <DiaryTableHead
-            headCells={headCells}
+            headCells={visibleHeadCells}
             order={order}
             orderBy={orderBy}
             onRequestSort={handleRequestSort}
@@ -117,7 +120,7 @@ export default function DiaryTable({ rows, recommendations, attributes, sex, loc
                 locale={locale}
                 expanded={expanded}
                 onExpand={setExpanded}
-                headCells={headCells}
+                headCells={visibleHeadCells}
               />
             ))}
             {emptyRows > 0 && (
