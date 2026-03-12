@@ -1,13 +1,14 @@
-import type { Attribute, Recommendation } from '../generated/product-api';
+import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
+import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendation';
 
-export const mockAttributes: Attribute[] = [
+export const mockAttributes: AttributeShape[] = [
   {
     id: 1,
     code: 'GHG',
     name: {
-      enUS: 'GHG',
-      fiFI: 'KHK',
-      svSE: 'VHG',
+      'en-US': 'GHG',
+      'fi-FI': 'KHK',
+      'sv-SE': 'VHG',
     },
     parentId: undefined,
   },
@@ -15,9 +16,9 @@ export const mockAttributes: Attribute[] = [
     id: 5,
     code: 'ENERC',
     name: {
-      enUS: 'Energy,calculated',
-      fiFI: 'Energia, laskennallinen',
-      svSE: 'Energi, beräknad',
+      'en-US': 'Energy,calculated',
+      'fi-FI': 'Energia, laskennallinen',
+      'sv-SE': 'Energi, beräknad',
     },
     parentId: 4,
   },
@@ -25,9 +26,9 @@ export const mockAttributes: Attribute[] = [
     id: 117,
     code: 'PORTM',
     name: {
-      enUS: 'medium-sized portion',
-      fiFI: 'keskikokoinen annos',
-      svSE: 'medelstor portion',
+      'en-US': 'medium-sized portion',
+      'fi-FI': 'keskikokoinen annos',
+      'sv-SE': 'medelstor portion',
     },
     parentId: 2,
   },
@@ -35,15 +36,15 @@ export const mockAttributes: Attribute[] = [
     id: 13,
     code: 'CHOAVL',
     name: {
-      enUS: 'Carbohydrate, available',
-      fiFI: 'Hiilihydraatti imeytyvä',
-      svSE: 'Kolhydrater, digererbara',
+      'en-US': 'Carbohydrate, available',
+      'fi-FI': 'Hiilihydraatti imeytyvä',
+      'sv-SE': 'Kolhydrater, digererbara',
     },
     parentId: 12,
   },
 ];
 
-export const mockRecommendations: Recommendation[] = [
+export const mockRecommendations: RecommendationShape[] = [
   {
     id: 7,
     minValue: 45,
@@ -57,5 +58,7 @@ export const mockRecommendations: Recommendation[] = [
     pav: undefined,
     pal: undefined,
     note: '',
+    attributeId: 13,
+    attribute: mockAttributes[3],
   },
 ];

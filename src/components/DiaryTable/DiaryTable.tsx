@@ -5,8 +5,9 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
+import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendation';
+import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 
-import type { Attribute, Recommendation } from '../../generated/product-api';
 import type { Locale, Sex } from '../App';
 import DiaryTableHead from './DiaryTableHead';
 import { DayRow } from './DayRow';
@@ -42,8 +43,8 @@ export interface HeadCell {
 
 interface DiaryTableProps {
   rows: Record<string, string | number | null>[];
-  recommendations: Recommendation[];
-  attributes: Attribute[];
+  recommendations: RecommendationShape[];
+  attributes: AttributeShape[];
   sex?: Sex;
   locale?: Locale;
 }

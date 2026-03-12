@@ -2,15 +2,12 @@ import React, { useEffect, useState } from 'react';
 import XLSX from 'xlsx';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
+import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendation';
+import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 
-import { Configuration, DefaultApi, type Attribute, type Recommendation } from '../generated/product-api';
 import DiaryTable from './DiaryTable/DiaryTable';
 import { MenuItem, Select } from '@mui/material';
-
-const configuration = new Configuration({
-  basePath: import.meta.env.VITE_API_BASE_PATH || 'http://localhost:42809',
-});
-const defaultApi = new DefaultApi(configuration);
+import { API_BASE_PATH } from '../utils/diary';
 
 export type Sex = 'female' | 'male';
 
@@ -18,19 +15,21 @@ export type Locale = 'fi-FI' | 'en-US' | 'sv-SV';
 
 export default function App() {
   const [rows, setRows] = useState<Record<string, string | number | null>[]>([]);
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
-  const [attributes, setAttributes] = useState<Attribute[]>([]);
+  const [recommendations, setRecommendations] = useState<RecommendationShape[]>([]);
+  const [attributes, setAttributes] = useState<AttributeShape[]>([]);
   const [sex, setSex] = useState<Sex | ''>('');
   const [locale, setLocale] = useState<Locale | ''>('');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const recommendationResponse = await defaultApi.apiRecommendationGet();
-        setRecommendations(recommendationResponse);
+        const recommendationResponse = await fetch(`${API_BASE_PATH}/api/recommendation`);
+        const recommendationData = await recommendationResponse.json();
+        setRecommendations(recommendationData);
 
-        const attributeResponse = await defaultApi.apiAttributeGet();
-        setAttributes(attributeResponse);
+        const attributeResponse = await fetch(`${API_BASE_PATH}/api/attribute`);
+        const attributeData = await attributeResponse.json();
+        setAttributes(attributeData);
       } catch (error) {
         console.error(error);
       }

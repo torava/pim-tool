@@ -3,27 +3,20 @@ import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import { getLeafEntities } from '@torava/pim-utils';
+import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendation';
+import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 
-import {
-  getRecommendation,
-  getDailyPriceBackgroundColor,
-  getAttributeBackgroundColor,
-  getDailyAttributeValue,
-  getEnergy,
-  getAttribute,
-  formatNumber,
-  getLeafEntities,
-} from '../../utils/diary';
-import type { Recommendation, Attribute } from '../../generated/product-api';
 import type { Sex, Locale } from '../App';
 import type { HeadCell } from './DiaryTable';
 import { MealRow } from './MealRow';
+import { DayHeadCell } from './DayHeadCell';
 
 interface DayRowProps {
   row: Record<string, string | number | null>;
   sortedRows: Record<string, string | number | null>[];
-  recommendations: Recommendation[];
-  attributes: Attribute[];
+  recommendations: RecommendationShape[];
+  attributes: AttributeShape[];
   sex?: Sex;
   locale?: Locale;
   expanded: Record<number, boolean>;
@@ -54,29 +47,16 @@ export function DayRow({
           {expanded[Number(row.id)] ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
         </TableCell>
         {headCells.map((headCell) => (
-          <TableCell
+          <DayHeadCell
             key={headCell.id}
-            sx={{
-              backgroundColor: headCell.id.toLocaleLowerCase().includes('price')
-                ? getDailyPriceBackgroundColor(Number(row[headCell.id]))
-                : getAttributeBackgroundColor(
-                    getDailyAttributeValue(
-                      Number(row[headCell.id]),
-                      Number(getEnergy(row)),
-                      Number(row['mass (g)']),
-                      getRecommendation(getAttribute(headCell.id, attributes, locale), sex, recommendations),
-                      getAttribute(headCell.id, attributes, locale)
-                    ),
-                    headCell.id,
-                    leafAttributes,
-                    recommendations,
-                    sex,
-                    locale
-                  ),
-            }}
-          >
-            {formatNumber(row[headCell.id] as number, locale)}
-          </TableCell>
+            headCell={headCell}
+            row={row}
+            attributes={attributes}
+            recommendations={recommendations}
+            sex={sex}
+            locale={locale}
+            leafAttributes={leafAttributes}
+          />
         ))}
       </TableRow>
       {expanded[Number(row.id)] &&

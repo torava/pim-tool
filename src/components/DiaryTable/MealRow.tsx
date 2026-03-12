@@ -2,27 +2,25 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendation';
+import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 
-import type { Recommendation, Attribute } from '../../generated/product-api';
 import {
   getMealPriceBackgroundColor,
   getEnergy,
   getAttributeBackgroundColor,
-  getMealAttributeValue,
-  getRecommendation,
-  getAttribute,
   formatNumber,
-  getLeafEntities,
 } from '../../utils/diary';
 import type { Sex, Locale } from '../App';
 import type { HeadCell } from './DiaryTable';
+import { getAttribute, getLeafEntities, getMealAttributeValue, getRecommendation } from '@torava/pim-utils';
 
 interface MealRowProps {
   day: Record<string, string | number | null>;
   meal: Record<string, string | number | null>;
   sortedRows: Record<string, string | number | null>[];
-  recommendations: Recommendation[];
-  attributes: Attribute[];
+  recommendations: RecommendationShape[];
+  attributes: AttributeShape[];
   sex?: Sex;
   locale?: Locale;
   expanded: Record<number, boolean>;
@@ -44,7 +42,7 @@ export function MealRow({
 }: MealRowProps) {
   const leafAttributes = getLeafEntities(attributes);
   const energyAttribute = attributes.find((attribute) => attribute.code === 'ENERC');
-  const energyRecommendation = getRecommendation(energyAttribute, sex, recommendations);
+  const energyRecommendation = getRecommendation(energyAttribute, recommendations, sex);
   return (
     <>
       <TableRow key={meal.id} sx={{ pl: 4 }}>
@@ -66,16 +64,15 @@ export function MealRow({
                     getMealAttributeValue(
                       Number(day[headCell.id]),
                       Number(getEnergy(day)),
-                      Number(day['mass (g)']),
                       energyRecommendation,
-                      getRecommendation(getAttribute(headCell.id, attributes, locale), sex, recommendations),
-                      getAttribute(headCell.id, attributes, locale)
+                      Number(day['mass (g)']),
+                      getRecommendation(getAttribute(headCell.id, attributes, recommendations), recommendations, sex),
+                      getAttribute(headCell.id, attributes, recommendations)
                     ),
                     headCell.id,
                     leafAttributes,
                     recommendations,
-                    sex,
-                    locale
+                    sex
                   ),
             }}
           >

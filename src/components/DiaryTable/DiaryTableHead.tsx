@@ -5,8 +5,9 @@ import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import { Box, TableSortLabel } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
+import { hasChildren } from '@torava/pim-utils';
 
-import { hasChildren, isAllExpanded } from '../../utils/diary';
+import { isAllExpanded } from '../../utils/diary';
 import type { HeadCell, Order } from './DiaryTable';
 
 interface DiaryTableHeadProps {
