@@ -6,7 +6,7 @@ import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendati
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 
 import DiaryTable from './DiaryTable/DiaryTable';
-import { MenuItem, Select } from '@mui/material';
+import { CircularProgress, MenuItem, Select } from '@mui/material';
 import { API_BASE_PATH } from '../utils/diary';
 
 export type Sex = 'female' | 'male';
@@ -19,28 +19,19 @@ export default function App() {
   const [attributes, setAttributes] = useState<AttributeShape[]>([]);
   const [sex, setSex] = useState<Sex | ''>('');
   const [locale, setLocale] = useState<Locale | ''>('');
+  const [uploading, setUploading] = useState(false);
+  const fileUpload = React.createRef<HTMLInputElement>();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const recommendationResponse = await fetch(`${API_BASE_PATH}/api/recommendation`);
-        const recommendationData = await recommendationResponse.json();
-        setRecommendations(recommendationData);
-
-        const attributeResponse = await fetch(`${API_BASE_PATH}/api/attribute`);
-        const attributeData = await attributeResponse.json();
-        setAttributes(attributeData);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchData();
-  }, []);
-
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
-    const reader = new FileReader();
-    const readFile = async () => {
-      const buffer = reader.result;
+  const handleFileChange = async () => {
+    if (fileUpload.current?.files?.[0] && locale && sex) {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('upload', fileUpload.current.files[0]);
+      const response = await fetch(`${API_BASE_PATH}/api/category/diary?locale=${locale}&sex=${sex}`, {
+        method: 'POST',
+        body: formData,
+      });
+      const buffer = await response.arrayBuffer();
       const workbook = XLSX.read(buffer);
       const ws = workbook.Sheets[workbook.SheetNames[0]];
       const data: Record<string, string | number>[] = XLSX.utils.sheet_to_json(ws);
@@ -85,10 +76,31 @@ export default function App() {
         }
       });
       setRows(treeData);
-    };
-    reader.addEventListener('load', readFile);
-    reader.readAsArrayBuffer(event.target.files![0]);
+      setUploading(false);
+    }
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const recommendationResponse = await fetch(`${API_BASE_PATH}/api/recommendation`);
+        const recommendationData = await recommendationResponse.json();
+        setRecommendations(recommendationData);
+
+        const attributeResponse = await fetch(`${API_BASE_PATH}/api/attribute`);
+        const attributeData = await attributeResponse.json();
+        setAttributes(attributeData);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    handleFileChange();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale, sex]);
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -114,7 +126,8 @@ export default function App() {
           <MenuItem value="female">Female</MenuItem>
           <MenuItem value="male">Male</MenuItem>
         </Select>
-        <input type="file" onChange={handleFileChange} data-testid="file" />
+        <input type="file" onChange={handleFileChange} data-testid="file" ref={(ref) => { fileUpload.current = ref }} />
+        {uploading && <CircularProgress sx={{ ml: 1 }} size={16} />}
         {!!rows.length && (
           <DiaryTable
             rows={rows}
