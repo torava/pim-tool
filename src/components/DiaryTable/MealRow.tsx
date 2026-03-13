@@ -6,14 +6,12 @@ import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendati
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 
 import {
-  getMealPriceBackgroundColor,
-  getEnergy,
-  getAttributeBackgroundColor,
   formatNumber,
 } from '../../utils/diary';
 import type { Sex, Locale } from '../App';
 import type { HeadCell } from './DiaryTable';
-import { getAttribute, getLeafEntities, getMealAttributeValue, getRecommendation } from '@torava/pim-utils';
+import { getLeafEntities, getRecommendation } from '@torava/pim-utils';
+import { MealHeadCell } from './MealHeadCell';
 
 interface MealRowProps {
   day: Record<string, string | number | null>;
@@ -55,29 +53,17 @@ export function MealRow({
           {expanded[Number(meal.id)] ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
         </TableCell>
         {headCells.map((headCell) => (
-          <TableCell
+          <MealHeadCell
             key={headCell.id}
-            sx={{
-              backgroundColor: headCell.id.toLocaleLowerCase().includes('price')
-                ? getMealPriceBackgroundColor(Number(day[headCell.id]), Number(getEnergy(day)), energyRecommendation)
-                : getAttributeBackgroundColor(
-                    getMealAttributeValue(
-                      Number(day[headCell.id]),
-                      Number(getEnergy(day)),
-                      Number(day['mass (g)']),
-                      energyRecommendation,
-                      getRecommendation(getAttribute(headCell.id, attributes, recommendations), recommendations, sex),
-                      getAttribute(headCell.id, attributes, recommendations)
-                    ),
-                    headCell.id,
-                    leafAttributes,
-                    recommendations,
-                    sex
-                  ),
-            }}
-          >
-            {formatNumber(meal[headCell.id] as number, locale)}
-          </TableCell>
+            headCell={headCell}
+            day={day}
+            meal={meal}
+            energyRecommendation={energyRecommendation}
+            leafAttributes={leafAttributes}
+            recommendations={recommendations}
+            sex={sex}
+            locale={locale}
+          />
         ))}
       </TableRow>
       {expanded[Number(meal.id)] &&

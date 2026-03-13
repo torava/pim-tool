@@ -10,7 +10,6 @@ import type { Locale, Sex } from '../App';
 interface DayHeadCellProps {
   headCell: HeadCell;
   row: Record<string, string | number | null>;
-  attributes: AttributeShape[];
   recommendations: RecommendationShape[];
   sex?: Sex;
   locale?: Locale;
@@ -20,7 +19,6 @@ interface DayHeadCellProps {
 export function DayHeadCell({
   headCell,
   row,
-  attributes,
   recommendations,
   sex,
   locale,
@@ -30,7 +28,7 @@ export function DayHeadCell({
   if (headCell.id.toLocaleLowerCase().includes('price')) {
     backgroundColor = getDailyPriceBackgroundColor(Number(row[headCell.id]));
   } else {
-    const attribute = getAttribute(headCell.id, attributes, recommendations, sex);
+    const attribute = getAttribute(headCell.id, leafAttributes, recommendations, sex);
     const recommendation = getRecommendation(attribute, recommendations, sex);
     const value = getDailyAttributeValue(
       Number(row[headCell.id]),

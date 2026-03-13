@@ -51,7 +51,6 @@ export function DayRow({
             key={headCell.id}
             headCell={headCell}
             row={row}
-            attributes={attributes}
             recommendations={recommendations}
             sex={sex}
             locale={locale}
