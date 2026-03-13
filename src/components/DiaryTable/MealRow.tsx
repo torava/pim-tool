@@ -64,8 +64,8 @@ export function MealRow({
                     getMealAttributeValue(
                       Number(day[headCell.id]),
                       Number(getEnergy(day)),
-                      energyRecommendation,
                       Number(day['mass (g)']),
+                      energyRecommendation,
                       getRecommendation(getAttribute(headCell.id, attributes, recommendations), recommendations, sex),
                       getAttribute(headCell.id, attributes, recommendations)
                     ),
