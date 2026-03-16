@@ -27,56 +27,61 @@ export default function App() {
       setUploading(true);
       const formData = new FormData();
       formData.append('upload', fileUpload.current.files[0]);
-      const response = await fetch(`${API_BASE_PATH}/api/category/diary?locale=${locale}&sex=${sex}`, {
-        method: 'POST',
-        body: formData,
-      });
-      const buffer = await response.arrayBuffer();
-      const workbook = XLSX.read(buffer);
-      const ws = workbook.Sheets[workbook.SheetNames[0]];
-      const data: Record<string, string | number>[] = XLSX.utils.sheet_to_json(ws);
-      let treeData: Record<string, string | number | null>[] = [];
-      let previousMealIndex = 0;
-      let previousDayIndex = 0;
-      data.forEach((row, index) => {
-        if (!row.meal) {
-          treeData = [
-            ...treeData.slice(0, previousDayIndex),
-            ...treeData.slice(previousDayIndex).map((previousRow) =>
-              previousRow.foodid
-                ? previousRow
-                : {
-                    ...previousRow,
-                    parentId: index + 1,
-                  }
-            ),
-            {
-              id: index + 1,
-              parentId: null,
-              ...row,
-            },
-          ];
-          previousDayIndex = index + 1;
-          previousMealIndex = index + 1;
-        } else if (!row.foodid) {
-          treeData = [
-            ...treeData,
-            ...data.slice(previousMealIndex, index).map((foodRow, foodIndex) => ({
-              id: previousMealIndex + foodIndex + 1,
-              parentId: index + 1,
-              ...foodRow,
-            })),
-            {
-              id: index + 1,
-              parentId: null,
-              ...row,
-            },
-          ];
-          previousMealIndex = index + 1;
-        }
-      });
-      setRows(treeData);
-      setUploading(false);
+      try {
+        const response = await fetch(`${API_BASE_PATH}/api/category/diary?locale=${locale}&sex=${sex}`, {
+          method: 'POST',
+          body: formData,
+        });
+        const buffer = await response.arrayBuffer();
+        const workbook = XLSX.read(buffer);
+        const ws = workbook.Sheets[workbook.SheetNames[0]];
+        const data: Record<string, string | number>[] = XLSX.utils.sheet_to_json(ws);
+        let treeData: Record<string, string | number | null>[] = [];
+        let previousMealIndex = 0;
+        let previousDayIndex = 0;
+        data.forEach((row, index) => {
+          if (!row.meal) {
+            treeData = [
+              ...treeData.slice(0, previousDayIndex),
+              ...treeData.slice(previousDayIndex).map((previousRow) =>
+                previousRow.foodid
+                  ? previousRow
+                  : {
+                      ...previousRow,
+                      parentId: index + 1,
+                    }
+              ),
+              {
+                id: index + 1,
+                parentId: null,
+                ...row,
+              },
+            ];
+            previousDayIndex = index + 1;
+            previousMealIndex = index + 1;
+          } else if (!row.foodid) {
+            treeData = [
+              ...treeData,
+              ...data.slice(previousMealIndex, index).map((foodRow, foodIndex) => ({
+                id: previousMealIndex + foodIndex + 1,
+                parentId: index + 1,
+                ...foodRow,
+              })),
+              {
+                id: index + 1,
+                parentId: null,
+                ...row,
+              },
+            ];
+            previousMealIndex = index + 1;
+          }
+        });
+        setRows(treeData);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setUploading(false);
+      }
     }
   };
 
