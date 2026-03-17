@@ -119,44 +119,46 @@ export default function App() {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Paper sx={{ width: '100%', overflow: 'hidden', mb: 2 }}>
-        <Select
-          value={locale}
-          onChange={(event) => setLocale(event.target.value)}
-          displayEmpty
-          size="small"
-          sx={{ mr: 1 }}
-        >
-          <MenuItem disabled value="">
-            <em>Locale</em>
-          </MenuItem>
-          <MenuItem value="fi-FI">Finnish</MenuItem>
-          <MenuItem value="en-US">English</MenuItem>
-          <MenuItem value="sv-SV">Swedish</MenuItem>
-        </Select>
-        <Select value={sex} onChange={(event) => setSex(event.target.value)} displayEmpty size="small" sx={{ mr: 1 }}>
-          <MenuItem disabled value="">
-            <em>Sex</em>
-          </MenuItem>
-          <MenuItem value="female">Female</MenuItem>
-          <MenuItem value="male">Male</MenuItem>
-        </Select>
-        <input
-          type="file"
-          onChange={handleFileChange}
-          data-testid="file"
-          ref={(ref) => {
-            fileUpload.current = ref;
-          }}
-        />
-        {uploading && <CircularProgress sx={{ ml: 1 }} size={16} />}
-        {href && (
-          <Typography display="inline" sx={{ ml: 1 }}>
-            <Link href={href} download={download}>
-              Download XSLX
-            </Link>
-          </Typography>
-        )}
+      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+        <Box sx={{ m: 1 }}>
+          <Select
+            value={locale}
+            onChange={(event) => setLocale(event.target.value)}
+            displayEmpty
+            size="small"
+            sx={{ mr: 1 }}
+          >
+            <MenuItem disabled value="">
+              <em>Locale</em>
+            </MenuItem>
+            <MenuItem value="fi-FI">Finnish</MenuItem>
+            <MenuItem value="en-US">English</MenuItem>
+            <MenuItem value="sv-SV">Swedish</MenuItem>
+          </Select>
+          <Select value={sex} onChange={(event) => setSex(event.target.value)} displayEmpty size="small" sx={{ mr: 1 }}>
+            <MenuItem disabled value="">
+              <em>Sex</em>
+            </MenuItem>
+            <MenuItem value="female">Female</MenuItem>
+            <MenuItem value="male">Male</MenuItem>
+          </Select>
+          <input
+            type="file"
+            onChange={handleFileChange}
+            data-testid="file"
+            ref={(ref) => {
+              fileUpload.current = ref;
+            }}
+          />
+          {uploading && <CircularProgress sx={{ ml: 1 }} size={16} />}
+          {href && (
+            <Typography display="inline" sx={{ ml: 1 }}>
+              <Link href={href} download={download}>
+                Download XSLX
+              </Link>
+            </Typography>
+          )}
+        </Box>
         {!!rows.length && (
           <DiaryTable
             rows={rows}
