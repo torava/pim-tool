@@ -2,11 +2,15 @@ import React, { useEffect, useState } from 'react';
 import XLSX from 'xlsx';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import CircularProgress from '@mui/material/CircularProgress';
+import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
 import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendation';
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 
 import DiaryTable from './DiaryTable/DiaryTable';
-import { CircularProgress, MenuItem, Select } from '@mui/material';
 import { API_BASE_PATH } from '../utils/diary';
 
 export type Sex = 'female' | 'male';
@@ -20,6 +24,8 @@ export default function App() {
   const [sex, setSex] = useState<Sex | ''>('');
   const [locale, setLocale] = useState<Locale | ''>('');
   const [uploading, setUploading] = useState(false);
+  const [href, setHref] = useState<string>('');
+  const [download, setDownload] = useState<string>('');
   const fileUpload = React.createRef<HTMLInputElement>();
 
   const handleFileChange = async () => {
@@ -33,6 +39,9 @@ export default function App() {
           body: formData,
         });
         const buffer = await response.arrayBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        setHref(window.URL.createObjectURL(blob));
+        setDownload(`${fileUpload.current.files[0].name}_pi.xlsx`);
         const workbook = XLSX.read(buffer);
         const ws = workbook.Sheets[workbook.SheetNames[0]];
         const data: Record<string, string | number>[] = XLSX.utils.sheet_to_json(ws);
@@ -104,7 +113,7 @@ export default function App() {
 
   useEffect(() => {
     handleFileChange();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale, sex]);
 
   return (
@@ -131,8 +140,22 @@ export default function App() {
           <MenuItem value="female">Female</MenuItem>
           <MenuItem value="male">Male</MenuItem>
         </Select>
-        <input type="file" onChange={handleFileChange} data-testid="file" ref={(ref) => { fileUpload.current = ref }} />
+        <input
+          type="file"
+          onChange={handleFileChange}
+          data-testid="file"
+          ref={(ref) => {
+            fileUpload.current = ref;
+          }}
+        />
         {uploading && <CircularProgress sx={{ ml: 1 }} size={16} />}
+        {href && (
+          <Typography display="inline">
+            <Link href={href} download={download} sx={{ ml: 1 }}>
+              Download XSLX
+            </Link>
+          </Typography>
+        )}
         {!!rows.length && (
           <DiaryTable
             rows={rows}
