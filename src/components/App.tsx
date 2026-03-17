@@ -33,6 +33,7 @@ export default function App() {
       setUploading(true);
       const formData = new FormData();
       formData.append('upload', fileUpload.current.files[0]);
+      const fileName = fileUpload.current.files[0].name;
       try {
         const response = await fetch(`${API_BASE_PATH}/api/category/diary?locale=${locale}&sex=${sex}`, {
           method: 'POST',
@@ -41,7 +42,7 @@ export default function App() {
         const buffer = await response.arrayBuffer();
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         setHref(window.URL.createObjectURL(blob));
-        setDownload(`${fileUpload.current.files[0].name}_pi.xlsx`);
+        setDownload(`${fileName}_pi.xlsx`);
         const workbook = XLSX.read(buffer);
         const ws = workbook.Sheets[workbook.SheetNames[0]];
         const data: Record<string, string | number>[] = XLSX.utils.sheet_to_json(ws);
