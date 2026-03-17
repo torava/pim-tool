@@ -151,8 +151,8 @@ export default function App() {
         />
         {uploading && <CircularProgress sx={{ ml: 1 }} size={16} />}
         {href && (
-          <Typography display="inline">
-            <Link href={href} download={download} sx={{ ml: 1 }}>
+          <Typography display="inline" sx={{ ml: 1 }}>
+            <Link href={href} download={download}>
               Download XSLX
             </Link>
           </Typography>
