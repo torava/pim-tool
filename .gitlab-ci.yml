@@ -17,11 +17,10 @@ stages:
     - export AWS_SESSION_TOKEN="${STS[2]}"
 
 unit test:
-  image: node:latest
+  image: mcr.microsoft.com/playwright:v1.60.0-noble
   stage: test
   before_script:
     - npm ci
-    - npx playwright install --with-deps
   script:
     - npm run test
   coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/
