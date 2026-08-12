@@ -2,11 +2,15 @@ import { useEffect, useState, type ReactElement } from 'react';
 import type CategoryShape from '@torava/pim-utils/dist/models/Category';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import { hasChildren } from '@torava/pim-utils';
 
 import { API_BASE_PATH } from '../../utils/diary';
 
+
 export function Categories() {
   const [categories, setCategories] = useState<CategoryShape[]>([]);
+  const [expandedCategories, setExpandedCategories] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,16 +27,25 @@ export function Categories() {
 
   const renderChildren = (parentId?: number, depth = 0): ReactElement[] =>
     categories
-      .filter((category) => parentId ? category.parentId === parentId : !category.parentId)
+      .filter((category) => (parentId ? category.parentId === parentId : !category.parentId))
       .map((category) => (
         <>
           <TableRow key={category.id}>
-            <TableCell sx={{ pl: 2 + depth * 6 }}>
-              <ExpandLess />
+            <TableCell
+              sx={{ pl: 2 + depth * 6 }}
+              onClick={() =>
+                setExpandedCategories((previousCategories) => ({
+                  ...previousCategories,
+                  [category.id!]: !previousCategories[category.id!],
+                }))
+              }
+            >
+              {hasChildren(category.id, categories) &&
+                (expandedCategories[category.id!] ? <ExpandLess /> : <ExpandMore />)}
             </TableCell>
             <TableCell>{category.name?.['fi-FI']}</TableCell>
           </TableRow>
-          {renderChildren(category.id, depth + 1)}
+          {expandedCategories[category.id!] && renderChildren(category.id, depth + 1)}
         </>
       ));
 
