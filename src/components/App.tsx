@@ -9,9 +9,12 @@ import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendation';
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
+import type CategoryShape from '@torava/pim-utils/dist/models/Category';
 
 import DiaryTable from './DiaryTable/DiaryTable';
 import { API_BASE_PATH } from '../utils/diary';
+import { Tab, Tabs } from '@mui/material';
+import { Categories } from './Categories/Categories';
 
 export type Sex = 'female' | 'male';
 
@@ -27,6 +30,7 @@ export default function App() {
   const [href, setHref] = useState<string>('');
   const [download, setDownload] = useState<string>('');
   const fileUpload = React.createRef<HTMLInputElement>();
+  const [tab, setTab] = useState(0);
 
   const handleFileChange = async () => {
     if (fileUpload.current?.files?.[0] && locale && sex) {
@@ -114,60 +118,68 @@ export default function App() {
 
   useEffect(() => {
     handleFileChange();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale, sex]);
 
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-        <Box sx={{ m: 1 }}>
-          <Select
-            value={locale}
-            onChange={(event) => setLocale(event.target.value)}
-            displayEmpty
-            size="small"
-            sx={{ mr: 1 }}
-          >
-            <MenuItem disabled value="">
-              <em>Locale</em>
-            </MenuItem>
-            <MenuItem value="fi-FI">Finnish</MenuItem>
-            <MenuItem value="en-US">English</MenuItem>
-            <MenuItem value="sv-SV">Swedish</MenuItem>
-          </Select>
-          <Select value={sex} onChange={(event) => setSex(event.target.value)} displayEmpty size="small" sx={{ mr: 1 }}>
-            <MenuItem disabled value="">
-              <em>Sex</em>
-            </MenuItem>
-            <MenuItem value="female">Female</MenuItem>
-            <MenuItem value="male">Male</MenuItem>
-          </Select>
-          <input
-            type="file"
-            onChange={handleFileChange}
-            data-testid="file"
-            ref={(ref) => {
-              fileUpload.current = ref;
-            }}
-          />
-          {uploading && <CircularProgress sx={{ ml: 1 }} size={16} />}
-          {href && (
-            <Typography display="inline" sx={{ ml: 1 }}>
-              <Link href={href} download={download}>
-                Download XSLX
-              </Link>
-            </Typography>
+        <Tabs value={tab} onChange={(_event, newValue) => setTab(newValue)} aria-label="tabs">
+          <Tab label="Diary" disableRipple />
+          <Tab label="Categories" disableRipple />
+        </Tabs>
+        <Box hidden={tab !== 0}>
+          <Box sx={{ m: 1 }}>
+            <Select
+              value={locale}
+              onChange={(event) => setLocale(event.target.value)}
+              displayEmpty
+              size="small"
+              sx={{ mr: 1 }}
+            >
+              <MenuItem disabled value="">
+                <em>Locale</em>
+              </MenuItem>
+              <MenuItem value="fi-FI">Finnish</MenuItem>
+              <MenuItem value="en-US">English</MenuItem>
+              <MenuItem value="sv-SV">Swedish</MenuItem>
+            </Select>
+            <Select value={sex} onChange={(event) => setSex(event.target.value)} displayEmpty size="small" sx={{ mr: 1 }}>
+              <MenuItem disabled value="">
+                <em>Sex</em>
+              </MenuItem>
+              <MenuItem value="female">Female</MenuItem>
+              <MenuItem value="male">Male</MenuItem>
+            </Select>
+            <input
+              type="file"
+              onChange={handleFileChange}
+              data-testid="file"
+              ref={(ref) => {
+                fileUpload.current = ref;
+              }}
+            />
+            {uploading && <CircularProgress sx={{ ml: 1 }} size={16} />}
+            {href && (
+              <Typography display="inline" sx={{ ml: 1 }}>
+                <Link href={href} download={download}>
+                  Download XSLX
+                </Link>
+              </Typography>
+            )}
+          </Box>
+          {!!rows.length && (
+            <DiaryTable
+              rows={rows}
+              recommendations={recommendations}
+              attributes={attributes}
+              sex={sex || undefined}
+              locale={locale || undefined}
+            />
           )}
         </Box>
-        {!!rows.length && (
-          <DiaryTable
-            rows={rows}
-            recommendations={recommendations}
-            attributes={attributes}
-            sex={sex || undefined}
-            locale={locale || undefined}
-          />
-        )}
+        <Box hidden={tab !== 1}>
+          <Categories />
+        </Box>
       </Paper>
     </Box>
   );
