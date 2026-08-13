@@ -4,11 +4,11 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { hasChildren } from '@torava/pim-utils';
+import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 
 import { API_BASE_PATH } from '../../utils/diary';
 
-
-export function Categories() {
+export function Categories({ attributes }: { attributes: AttributeShape[] }) {
   const [categories, setCategories] = useState<CategoryShape[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Record<number, boolean>>({});
 
@@ -24,6 +24,8 @@ export function Categories() {
     };
     fetchData();
   }, []);
+
+  console.log('Categories:', categories);
 
   const renderChildren = (parentId?: number, depth = 0): ReactElement[] =>
     categories
@@ -44,6 +46,12 @@ export function Categories() {
                 (expandedCategories[category.id!] ? <ExpandLess /> : <ExpandMore />)}
             </TableCell>
             <TableCell>{category.name?.['fi-FI']}</TableCell>
+            {attributes.map((attribute) => {
+              const categoryAttribute = category.attributes?.find(
+                (categoryAttribute) => categoryAttribute.attributeId === attribute.id
+              );
+              return <TableCell key={attribute.id}>{categoryAttribute?.value} {categoryAttribute?.unit}</TableCell>;
+            })}
           </TableRow>
           {expandedCategories[category.id!] && renderChildren(category.id, depth + 1)}
         </>
@@ -51,7 +59,7 @@ export function Categories() {
 
   return (
     <TableContainer>
-      <Table>
+      <Table size="small">
         <TableHead>
           <TableRow>
             <TableCell
@@ -66,6 +74,9 @@ export function Categories() {
               {Object.keys(expandedCategories).length === categories.length ? <ExpandLess /> : <ExpandMore />}
             </TableCell>
             <TableCell>Name</TableCell>
+            {attributes.map((attribute) => (
+              <TableCell key={attribute.id}>{attribute.name?.['fi-FI']}</TableCell>
+            ))}
           </TableRow>
         </TableHead>
         <TableBody>{renderChildren()}</TableBody>

@@ -178,7 +178,7 @@ export default function App() {
           )}
         </Box>
         <Box hidden={tab !== 1}>
-          <Categories />
+          <Categories attributes={attributes} />
         </Box>
       </Paper>
     </Box>
