@@ -54,8 +54,16 @@ export function Categories() {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>
-              <ExpandLess />
+            <TableCell
+              onClick={() =>
+                setExpandedCategories(
+                  Object.keys(expandedCategories).length === categories.length
+                    ? {}
+                    : Object.fromEntries(categories.map((category) => [category.id!, true]))
+                )
+              }
+            >
+              {Object.keys(expandedCategories).length === categories.length ? <ExpandLess /> : <ExpandMore />}
             </TableCell>
             <TableCell>Name</TableCell>
           </TableRow>
