@@ -9,7 +9,6 @@ import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendation';
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
-import type CategoryShape from '@torava/pim-utils/dist/models/Category';
 
 import DiaryTable from './DiaryTable/DiaryTable';
 import { API_BASE_PATH } from '../utils/diary';
@@ -18,7 +17,7 @@ import { Categories } from './Categories/Categories';
 
 export type Sex = 'female' | 'male';
 
-export type Locale = 'fi-FI' | 'en-US' | 'sv-SV';
+export type Locale = 'fi-FI' | 'en-US' | 'sv-SE';
 
 export default function App() {
   const [rows, setRows] = useState<Record<string, string | number | null>[]>([]);
