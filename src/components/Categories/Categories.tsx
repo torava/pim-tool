@@ -1,16 +1,50 @@
-import { useEffect, useState, type ReactElement } from 'react';
+import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import type CategoryShape from '@torava/pim-utils/dist/models/Category';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from '@mui/material';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { hasChildren } from '@torava/pim-utils';
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
+import { visuallyHidden } from '@mui/utils';
 
 import { API_BASE_PATH } from '../../utils/diary';
+
+function descendingComparator<T>(a: T, b: T, orderBy: string) {
+  let aValue, bValue;
+  if (orderBy === 'name') {
+    aValue = (a as CategoryShape)['name']?.['fi-FI'] || '';
+    bValue = (b as CategoryShape)['name']?.['fi-FI'] || '';
+  } else if (orderBy.startsWith('attribute-')) {
+    const attributeId = parseInt(orderBy.split('-')[1]);
+    aValue = (a as CategoryShape).attributes?.find((attr) => attr.attributeId === attributeId)?.value || '';
+    bValue = (b as CategoryShape).attributes?.find((attr) => attr.attributeId === attributeId)?.value || '';
+  }
+  if (bValue! < aValue!) {
+    return -1;
+  }
+  if (bValue! > aValue!) {
+    return 1;
+  }
+  return 0;
+}
+
+type Order = 'asc' | 'desc';
+
+function getComparator(order: Order, orderBy: string): (a: any, b: any) => number {
+  return order === 'desc'
+    ? (a, b) => descendingComparator(a, b, orderBy)
+    : (a, b) => -descendingComparator(a, b, orderBy);
+}
 
 export function Categories({ attributes }: { attributes: AttributeShape[] }) {
   const [categories, setCategories] = useState<CategoryShape[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Record<number, boolean>>({});
+  const [order, setOrder] = useState<Order>('asc');
+  const [orderBy, setOrderBy] = useState<string>();
+  const sortedCategories = useMemo(
+    () => (orderBy ? [...categories].sort(getComparator(order, orderBy)) : categories),
+    [categories, order, orderBy]
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,10 +59,8 @@ export function Categories({ attributes }: { attributes: AttributeShape[] }) {
     fetchData();
   }, []);
 
-  console.log('Categories:', categories);
-
   const renderChildren = (parentId?: number, depth = 0): ReactElement[] =>
-    categories
+    sortedCategories
       .filter((category) => (parentId ? category.parentId === parentId : !category.parentId))
       .map((category) => (
         <>
@@ -50,12 +82,24 @@ export function Categories({ attributes }: { attributes: AttributeShape[] }) {
               const categoryAttribute = category.attributes?.find(
                 (categoryAttribute) => categoryAttribute.attributeId === attribute.id
               );
-              return <TableCell key={attribute.id}>{categoryAttribute?.value} {categoryAttribute?.unit}</TableCell>;
+              return (
+                <TableCell key={attribute.id}>
+                  {typeof categoryAttribute?.value === 'number'
+                    ? new Intl.NumberFormat('fi-FI').format(categoryAttribute?.value)
+                    : categoryAttribute?.value || ''} {categoryAttribute?.unit}
+                </TableCell>
+              );
             })}
           </TableRow>
           {expandedCategories[category.id!] && renderChildren(category.id, depth + 1)}
         </>
       ));
+
+  const handleRequestSort = (_event: React.MouseEvent<unknown>, property: string) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
 
   return (
     <TableContainer>
@@ -73,9 +117,35 @@ export function Categories({ attributes }: { attributes: AttributeShape[] }) {
             >
               {Object.keys(expandedCategories).length === categories.length ? <ExpandLess /> : <ExpandMore />}
             </TableCell>
-            <TableCell>Name</TableCell>
+            <TableCell>
+              <TableSortLabel
+                active={orderBy === 'name'}
+                direction={orderBy === 'name' ? order : 'asc'}
+                onClick={(event) => handleRequestSort(event, 'name')}
+              >
+                Name
+                {orderBy === 'name' ? (
+                  <Box component="span" sx={visuallyHidden}>
+                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                  </Box>
+                ) : null}
+              </TableSortLabel>
+            </TableCell>
             {attributes.map((attribute) => (
-              <TableCell key={attribute.id}>{attribute.name?.['fi-FI']}</TableCell>
+              <TableCell key={attribute.id}>
+                <TableSortLabel
+                  active={orderBy === `attribute-${attribute.id}`}
+                  direction={orderBy === `attribute-${attribute.id}` ? order : 'asc'}
+                  onClick={(event) => handleRequestSort(event, `attribute-${attribute.id}`)}
+                >
+                  {attribute.name?.['fi-FI']}
+                  {orderBy === `attribute-${attribute.id}` ? (
+                    <Box component="span" sx={visuallyHidden}>
+                      {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                    </Box>
+                  ) : null}
+                </TableSortLabel>
+              </TableCell>
             ))}
           </TableRow>
         </TableHead>
