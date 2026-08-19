@@ -24,7 +24,7 @@ import type { Locale } from '../App';
 type Order = 'asc' | 'desc';
 
 export function Categories({ attributes }: { attributes: AttributeShape[] }) {
-  const [locale, setLocale] = useState<Locale>('fi-FI');
+  const [locale, setLocale] = useState<Locale>('en-US');
   const [categories, setCategories] = useState<CategoryShape[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Record<number, boolean>>({});
   const [order, setOrder] = useState<Order>('asc');
@@ -170,7 +170,7 @@ export function Categories({ attributes }: { attributes: AttributeShape[] }) {
                     direction={orderBy === `attribute-${attribute.id}` ? order : 'asc'}
                     onClick={(event) => handleRequestSort(event, `attribute-${attribute.id}`)}
                   >
-                    {attribute.name?.['fi-FI']}
+                    {attribute.name?.[locale] || attribute.name?.['en-US'] || ''}
                     {orderBy === `attribute-${attribute.id}` ? (
                       <Box component="span" sx={visuallyHidden}>
                         {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
