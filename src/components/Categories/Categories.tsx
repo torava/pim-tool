@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactElement } from 'react';
+import React, { useEffect, useMemo, useState, type ReactElement } from 'react';
 import type CategoryShape from '@torava/pim-utils/dist/models/Category';
 import {
   Box,
@@ -77,8 +77,8 @@ export function Categories({ attributes }: { attributes: AttributeShape[] }) {
     sortedCategories
       .filter((category) => (parentId ? category.parentId === parentId : !category.parentId))
       .map((category) => (
-        <>
-          <TableRow key={category.id}>
+        <React.Fragment key={category.id}>
+          <TableRow>
             <TableCell
               sx={{ pl: 2 + depth * 6 }}
               onClick={() =>
@@ -107,7 +107,7 @@ export function Categories({ attributes }: { attributes: AttributeShape[] }) {
             })}
           </TableRow>
           {expandedCategories[category.id!] && renderChildren(category.id, depth + 1)}
-        </>
+        </React.Fragment>
       ));
 
   const handleRequestSort = (_event: React.MouseEvent<unknown>, property: string) => {
