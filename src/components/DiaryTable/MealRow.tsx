@@ -4,10 +4,11 @@ import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendation';
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
+import { Link } from '@mui/material';
+import type CategoryShape from '@torava/pim-utils/dist/models/Category';
+import { Link as RouterLink } from 'react-router-dom';
 
-import {
-  formatNumber,
-} from '../../utils/diary';
+import { formatNumber } from '../../utils/diary';
 import type { Sex, Locale } from '../App';
 import type { HeadCell } from './DiaryTable';
 import { getLeafEntities, getRecommendation } from '@torava/pim-utils';
@@ -19,6 +20,7 @@ interface MealRowProps {
   sortedRows: Record<string, string | number | null>[];
   recommendations: RecommendationShape[];
   attributes: AttributeShape[];
+  categories: CategoryShape[];
   sex?: Sex;
   locale?: Locale;
   expanded: Record<number, boolean>;
@@ -32,6 +34,7 @@ export function MealRow({
   sortedRows,
   recommendations,
   attributes,
+  categories,
   sex,
   locale,
   expanded,
@@ -72,9 +75,20 @@ export function MealRow({
           .map((food) => (
             <TableRow key={food.id} sx={{ pl: 4 }}>
               <TableCell />
-              {headCells.map((headCell) => (
-                <TableCell>{formatNumber(food[headCell.id] as number, locale)}</TableCell>
-              ))}
+              {headCells.map((headCell) =>
+                headCell.id.toLocaleLowerCase() === 'food' ? (
+                  <TableCell>
+                    <Link
+                      to={`/categories#category-${categories.find((category) => category.name?.[locale || 'en-US'] === food.food)?.id}`}
+                      component={RouterLink}
+                    >
+                      {food.food}
+                    </Link>
+                  </TableCell>
+                ) : (
+                  <TableCell>{formatNumber(food[headCell.id] as number, locale)}</TableCell>
+                )
+              )}
             </TableRow>
           ))}
     </>

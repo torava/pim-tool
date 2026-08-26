@@ -6,6 +6,7 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import { getLeafEntities } from '@torava/pim-utils';
 import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendation';
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
+import type CategoryShape from '@torava/pim-utils/dist/models/Category';
 
 import type { Sex, Locale } from '../App';
 import type { HeadCell } from './DiaryTable';
@@ -17,6 +18,7 @@ interface DayRowProps {
   sortedRows: Record<string, string | number | null>[];
   recommendations: RecommendationShape[];
   attributes: AttributeShape[];
+  categories: CategoryShape[];
   sex?: Sex;
   locale?: Locale;
   expanded: Record<number, boolean>;
@@ -29,6 +31,7 @@ export function DayRow({
   sortedRows,
   recommendations,
   attributes,
+  categories,
   sex,
   locale,
   expanded,
@@ -69,6 +72,7 @@ export function DayRow({
               sortedRows={sortedRows}
               recommendations={recommendations}
               attributes={attributes}
+              categories={categories}
               sex={sex}
               locale={locale}
               expanded={expanded}

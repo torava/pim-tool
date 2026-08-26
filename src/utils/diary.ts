@@ -59,3 +59,14 @@ export const formatNumber = (value: number, locale?: Locale) =>
   !value || isNaN(value) ? value : new Intl.NumberFormat(locale).format(value);
 
 export const HIDDEN_COLUMNS = ['id', 'parentId'];
+
+export const getParents = <T extends { id?: number; parentId?: number }>(id?: number, rows: T[] = []): T[] =>
+  rows.reduce((previousRows: T[], currentRow: T) => {
+    if (currentRow.id === id) {
+      previousRows.push(currentRow);
+      if (currentRow.parentId) {
+        return getParents(currentRow.parentId, rows).concat(previousRows);
+      }
+    }
+    return previousRows;
+  }, []);

@@ -7,8 +7,10 @@ import MenuItem from '@mui/material/MenuItem';
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
+import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom';
 import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendation';
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
+import type CategoryShape from '@torava/pim-utils/dist/models/Category';
 
 import DiaryTable from './DiaryTable/DiaryTable';
 import { API_BASE_PATH } from '../utils/diary';
@@ -20,16 +22,33 @@ export type Sex = 'female' | 'male';
 export type Locale = 'fi-FI' | 'en-US' | 'sv-SE';
 
 export default function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
+  );
+}
+
+function AppContent() {
   const [rows, setRows] = useState<Record<string, string | number | null>[]>([]);
   const [recommendations, setRecommendations] = useState<RecommendationShape[]>([]);
   const [attributes, setAttributes] = useState<AttributeShape[]>([]);
+  const [categories, setCategories] = useState<CategoryShape[]>([]);
   const [sex, setSex] = useState<Sex | ''>('');
   const [locale, setLocale] = useState<Locale | ''>('');
   const [uploading, setUploading] = useState(false);
   const [href, setHref] = useState<string>('');
   const [download, setDownload] = useState<string>('');
   const fileUpload = React.createRef<HTMLInputElement>();
-  const [tab, setTab] = useState(0);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const tab = location.pathname.includes('/categories') ? 1 : 0;
+
+  useEffect(() => {
+    if (location.pathname !== '/' && !location.pathname.includes('/categories')) {
+      navigate('/', { replace: true });
+    }
+  }, [location.pathname, navigate]);
 
   const handleFileChange = async () => {
     if (fileUpload.current?.files?.[0] && locale && sex) {
@@ -108,6 +127,10 @@ export default function App() {
         const attributeResponse = await fetch(`${API_BASE_PATH}/api/attribute`);
         const attributeData = await attributeResponse.json();
         setAttributes(attributeData);
+
+        const categoryResponse = await fetch(`${API_BASE_PATH}/api/category?categoriesPerPage=10000&attributes=1`);
+        const categoryData = await categoryResponse.json();
+        setCategories(categoryData.results);
       } catch (error) {
         console.error(error);
       }
@@ -122,7 +145,11 @@ export default function App() {
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-        <Tabs value={tab} onChange={(_event, newValue) => setTab(newValue)} aria-label="tabs">
+        <Tabs
+          value={tab}
+          onChange={(_event, newValue) => navigate(newValue === 1 ? '/categories' : '/')}
+          aria-label="tabs"
+        >
           <Tab label="Diary" disableRipple />
           <Tab label="Categories" disableRipple />
         </Tabs>
@@ -171,13 +198,14 @@ export default function App() {
               rows={rows}
               recommendations={recommendations}
               attributes={attributes}
+              categories={categories}
               sex={sex || undefined}
               locale={locale || undefined}
             />
           )}
         </Box>
         <Box hidden={tab !== 1}>
-          <Categories attributes={attributes} />
+          <Categories attributes={attributes} categories={categories} />
         </Box>
       </Paper>
     </Box>

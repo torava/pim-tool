@@ -7,6 +7,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendation';
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
+import type CategoryShape from '@torava/pim-utils/dist/models/Category';
 
 import type { Locale, Sex } from '../App';
 import DiaryTableHead from './DiaryTableHead';
@@ -45,11 +46,12 @@ interface DiaryTableProps {
   rows: Record<string, string | number | null>[];
   recommendations: RecommendationShape[];
   attributes: AttributeShape[];
+  categories: CategoryShape[];
   sex?: Sex;
   locale?: Locale;
 }
 
-export default function DiaryTable({ rows, recommendations, attributes, sex, locale }: DiaryTableProps) {
+export default function DiaryTable({ rows, recommendations, attributes, categories, sex, locale }: DiaryTableProps) {
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<string>();
   const [page, setPage] = useState(0);
@@ -117,6 +119,7 @@ export default function DiaryTable({ rows, recommendations, attributes, sex, loc
                 sortedRows={sortedRows}
                 recommendations={recommendations}
                 attributes={attributes}
+                categories={categories}
                 sex={sex}
                 locale={locale}
                 expanded={expanded}

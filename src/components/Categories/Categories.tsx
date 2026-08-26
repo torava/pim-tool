@@ -17,31 +17,20 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import { hasChildren } from '@torava/pim-utils';
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 import { visuallyHidden } from '@mui/utils';
+import { useLocation } from 'react-router-dom';
 
-import { API_BASE_PATH } from '../../utils/diary';
+import { API_BASE_PATH, getParents } from '../../utils/diary';
 import type { Locale } from '../App';
 
 type Order = 'asc' | 'desc';
 
-export function Categories({ attributes }: { attributes: AttributeShape[] }) {
+export function Categories({ attributes, categories }: { attributes: AttributeShape[]; categories: CategoryShape[] }) {
+  const { pathname, hash, key } = useLocation();
   const [locale, setLocale] = useState<Locale>('en-US');
-  const [categories, setCategories] = useState<CategoryShape[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Record<number, boolean>>({});
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<string>();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const categoryResponse = await fetch(`${API_BASE_PATH}/api/category?categoriesPerPage=10000&attributes=1`);
-        const categoryData = await categoryResponse.json();
-        setCategories(categoryData.results);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchData();
-  }, []);
+  const [currentCategoryId, setCurrentCategoryId] = useState<number>();
 
   const descendingComparator = <T,>(a: T, b: T, orderBy: string) => {
     let aValue, bValue;
@@ -62,7 +51,7 @@ export function Categories({ attributes }: { attributes: AttributeShape[] }) {
     return 0;
   };
 
-  const getComparator = (order: Order, orderBy: string): (a: any, b: any) => number => {
+  const getComparator = (order: Order, orderBy: string): ((a: any, b: any) => number) => {
     return order === 'desc'
       ? (a, b) => descendingComparator(a, b, orderBy)
       : (a, b) => -descendingComparator(a, b, orderBy);
@@ -73,12 +62,43 @@ export function Categories({ attributes }: { attributes: AttributeShape[] }) {
     [categories, order, orderBy]
   );
 
+  useEffect(() => {
+    if (hash !== '' && sortedCategories.length) {
+      setTimeout(() => {
+        const id = hash.replace('#', '');
+        const category = categories.find((category) => `category-${category.id}` === id);
+        getParents(category?.id, categories).forEach((parent) => {
+          if (parent.id) {
+            setExpandedCategories((previousCategories) => ({
+              ...previousCategories,
+              [parent.id!]: true,
+            }));
+          }
+        });
+        setCurrentCategoryId(Number(id.split('-')[1]));
+      }, 0);
+    }
+  }, [pathname, hash, key, sortedCategories]);
+
+  useEffect(() => {
+    console.log('sortedCategories', sortedCategories);
+    if (currentCategoryId && sortedCategories.length) {
+      const parents = getParents(currentCategoryId, categories);
+      if (parents.every((parent) => expandedCategories[parent.id!])) {
+        const element = document.getElementById(`category-${currentCategoryId}`);
+        if (element) {
+          element.scrollIntoView();
+        }
+      }
+    }
+  }, [currentCategoryId, expandedCategories, sortedCategories]);
+
   const renderChildren = (parentId?: number, depth = 0): ReactElement[] =>
     sortedCategories
       .filter((category) => (parentId ? category.parentId === parentId : !category.parentId))
       .map((category) => (
         <React.Fragment key={category.id}>
-          <TableRow>
+          <TableRow id={`category-${category.id}`}>
             <TableCell
               sx={{ pl: 2 + depth * 6 }}
               onClick={() =>
