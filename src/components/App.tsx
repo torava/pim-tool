@@ -35,7 +35,7 @@ function AppContent() {
   const [attributes, setAttributes] = useState<AttributeShape[]>([]);
   const [categories, setCategories] = useState<CategoryShape[]>([]);
   const [sex, setSex] = useState<Sex | ''>('');
-  const [locale, setLocale] = useState<Locale | ''>('');
+  const [locale, setLocale] = useState<Locale>('fi-FI');
   const [uploading, setUploading] = useState(false);
   const [href, setHref] = useState<string>('');
   const [download, setDownload] = useState<string>('');
@@ -158,7 +158,6 @@ function AppContent() {
             <Select
               value={locale}
               onChange={(event) => setLocale(event.target.value)}
-              displayEmpty
               size="small"
               sx={{ mr: 1 }}
             >
@@ -169,7 +168,13 @@ function AppContent() {
               <MenuItem value="en-US">English</MenuItem>
               <MenuItem value="sv-SV">Swedish</MenuItem>
             </Select>
-            <Select value={sex} onChange={(event) => setSex(event.target.value)} displayEmpty size="small" sx={{ mr: 1 }}>
+            <Select
+              value={sex}
+              onChange={(event) => setSex(event.target.value)}
+              displayEmpty
+              size="small"
+              sx={{ mr: 1 }}
+            >
               <MenuItem disabled value="">
                 <em>Sex</em>
               </MenuItem>
@@ -205,7 +210,7 @@ function AppContent() {
           )}
         </Box>
         <Box hidden={tab !== 1}>
-          <Categories attributes={attributes} categories={categories} />
+          <Categories attributes={attributes} categories={categories} locale={locale} onLocaleChange={setLocale} />
         </Box>
       </Paper>
     </Box>

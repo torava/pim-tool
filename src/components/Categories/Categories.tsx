@@ -19,14 +19,20 @@ import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 import { visuallyHidden } from '@mui/utils';
 import { useLocation } from 'react-router-dom';
 
-import { API_BASE_PATH, getParents } from '../../utils/diary';
+import { getParents } from '../../utils/diary';
 import type { Locale } from '../App';
 
 type Order = 'asc' | 'desc';
 
-export function Categories({ attributes, categories }: { attributes: AttributeShape[]; categories: CategoryShape[] }) {
+interface CategoriesProps {
+  attributes: AttributeShape[];
+  categories: CategoryShape[];
+  locale: Locale;
+  onLocaleChange: (locale: Locale) => void;
+}
+
+export function Categories({ attributes, categories, locale, onLocaleChange }: CategoriesProps) {
   const { pathname, hash, key } = useLocation();
-  const [locale, setLocale] = useState<Locale>('en-US');
   const [expandedCategories, setExpandedCategories] = useState<Record<number, boolean>>({});
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<string>();
@@ -81,7 +87,6 @@ export function Categories({ attributes, categories }: { attributes: AttributeSh
   }, [pathname, hash, key, sortedCategories]);
 
   useEffect(() => {
-    console.log('sortedCategories', sortedCategories);
     if (currentCategoryId && sortedCategories.length) {
       const parents = getParents(currentCategoryId, categories);
       if (parents.every((parent) => expandedCategories[parent.id!])) {
@@ -141,7 +146,7 @@ export function Categories({ attributes, categories }: { attributes: AttributeSh
       <Box sx={{ m: 1 }}>
         <Select
           value={locale}
-          onChange={(event) => setLocale(event.target.value)}
+          onChange={(event) => onLocaleChange(event.target.value)}
           displayEmpty
           size="small"
           sx={{ mr: 1 }}
