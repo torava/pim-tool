@@ -99,7 +99,7 @@ export default function DiaryTable({ rows, recommendations, attributes, categori
 
   return (
     <>
-      <TableContainer sx={{ height: 'calc(100vh - 56px - 52px)' }}>
+      <TableContainer sx={{ height: 'calc(100vh - 56px - 52px - 48px)' }}>
         <Table sx={{ minWidth: 750 }} size="small" stickyHeader>
           <DiaryTableHead
             headCells={visibleHeadCells}
