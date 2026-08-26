@@ -18,9 +18,11 @@ import { hasChildren } from '@torava/pim-utils';
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 import { visuallyHidden } from '@mui/utils';
 import { useLocation } from 'react-router-dom';
+import type ItemShape from '@torava/pim-utils/dist/models/Item';
 
-import { getParents } from '../../utils/diary';
+import { API_BASE_PATH, formatNumber, getParents } from '../DiaryTable/utils';
 import type { Locale } from '../App';
+import { getCategoryItemWithPrice } from './utils';
 
 type Order = 'asc' | 'desc';
 
@@ -37,6 +39,7 @@ export function Categories({ attributes, categories, locale, onLocaleChange }: C
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<string>();
   const [currentCategoryId, setCurrentCategoryId] = useState<number>();
+  const [items, setItems] = useState<ItemShape[]>([]);
 
   const descendingComparator = <T,>(a: T, b: T, orderBy: string) => {
     let aValue, bValue;
@@ -98,6 +101,19 @@ export function Categories({ attributes, categories, locale, onLocaleChange }: C
     }
   }, [currentCategoryId, expandedCategories, sortedCategories]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const itemResponse = await fetch(`${API_BASE_PATH}/api/item`);
+        const itemData = await itemResponse.json();
+        setItems(itemData);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, []);
+
   const renderChildren = (parentId?: number, depth = 0): ReactElement[] =>
     sortedCategories
       .filter((category) => (parentId ? category.parentId === parentId : !category.parentId))
@@ -117,16 +133,22 @@ export function Categories({ attributes, categories, locale, onLocaleChange }: C
                 (expandedCategories[category.id!] ? <ExpandLess /> : <ExpandMore />)}
             </TableCell>
             <TableCell>{category.name?.[locale] || category.name?.['en-US'] || ''}</TableCell>
+            <TableCell>
+              {formatNumber(getCategoryItemWithPrice(category, items)?.transaction?.totalPrice, locale, {
+                style: 'currency',
+                currency: 'EUR',
+              })}
+            </TableCell>
+            <TableCell>
+              {formatNumber(getCategoryItemWithPrice(category, items)?.measure, locale)} {getCategoryItemWithPrice(category, items)?.unit}
+            </TableCell>
             {attributes.map((attribute) => {
               const categoryAttribute = category.attributes?.find(
                 (categoryAttribute) => categoryAttribute.attributeId === attribute.id
               );
               return (
                 <TableCell key={attribute.id}>
-                  {typeof categoryAttribute?.value === 'number'
-                    ? new Intl.NumberFormat(locale).format(categoryAttribute?.value)
-                    : categoryAttribute?.value || ''}{' '}
-                  {categoryAttribute?.unit}
+                  {formatNumber(categoryAttribute?.value, locale)} {categoryAttribute?.unit}
                 </TableCell>
               );
             })}
@@ -144,13 +166,7 @@ export function Categories({ attributes, categories, locale, onLocaleChange }: C
   return (
     <>
       <Box sx={{ m: 1 }}>
-        <Select
-          value={locale}
-          onChange={(event) => onLocaleChange(event.target.value)}
-          displayEmpty
-          size="small"
-          sx={{ mr: 1 }}
-        >
+        <Select value={locale} onChange={(event) => onLocaleChange(event.target.value)} size="small" sx={{ mr: 1 }}>
           <MenuItem disabled value="">
             <em>Locale</em>
           </MenuItem>
@@ -188,6 +204,8 @@ export function Categories({ attributes, categories, locale, onLocaleChange }: C
                   ) : null}
                 </TableSortLabel>
               </TableCell>
+              <TableCell>Price</TableCell>
+              <TableCell>Measure</TableCell>
               {attributes.map((attribute) => (
                 <TableCell key={attribute.id}>
                   <TableSortLabel

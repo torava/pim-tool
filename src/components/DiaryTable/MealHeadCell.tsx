@@ -3,7 +3,7 @@ import { getMealAttributeValue, getRecommendation, getAttribute } from '@torava/
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendation';
 
-import { getMealPriceBackgroundColor, getEnergy, getAttributeBackgroundColor, formatNumber } from '../../utils/diary';
+import { getMealPriceBackgroundColor, getEnergy, getAttributeBackgroundColor, formatNumber } from './utils';
 import type { Locale, Sex } from '../App';
 
 interface MealHeadeCellProps {

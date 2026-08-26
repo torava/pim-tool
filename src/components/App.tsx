@@ -13,7 +13,7 @@ import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 import type CategoryShape from '@torava/pim-utils/dist/models/Category';
 
 import DiaryTable from './DiaryTable/DiaryTable';
-import { API_BASE_PATH } from '../utils/diary';
+import { API_BASE_PATH } from './DiaryTable/utils';
 import { Tab, Tabs } from '@mui/material';
 import { Categories } from './Categories/Categories';
 

@@ -8,7 +8,7 @@ import { Link } from '@mui/material';
 import type CategoryShape from '@torava/pim-utils/dist/models/Category';
 import { Link as RouterLink } from 'react-router-dom';
 
-import { formatNumber } from '../../utils/diary';
+import { formatNumber } from './utils';
 import type { Sex, Locale } from '../App';
 import type { HeadCell } from './DiaryTable';
 import { getLeafEntities, getRecommendation } from '@torava/pim-utils';

@@ -7,7 +7,7 @@ import {
   PRICE_RECOMMENDATION,
 } from '@torava/pim-utils';
 
-import type { Locale, Sex } from '../components/App';
+import type { Locale, Sex } from '../App';
 import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendation';
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 
@@ -55,8 +55,8 @@ export const isAllExpanded = (expanded: Record<number, boolean>, rows: Record<st
   return parents.every((parent) => expanded[Number(parent.id)]);
 };
 
-export const formatNumber = (value: number, locale?: Locale) =>
-  !value || isNaN(value) ? value : new Intl.NumberFormat(locale).format(value);
+export const formatNumber = (value?: number, locale?: Locale, options?: Intl.NumberFormatOptions) =>
+  !value || isNaN(value) ? value : new Intl.NumberFormat(locale, options).format(value);
 
 export const HIDDEN_COLUMNS = ['id', 'parentId'];
 

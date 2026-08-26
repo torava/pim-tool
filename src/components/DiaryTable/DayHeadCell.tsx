@@ -3,7 +3,7 @@ import { getAttribute, getDailyAttributeValue, getRecommendation } from '@torava
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendation';
 
-import { getDailyPriceBackgroundColor, getAttributeBackgroundColor, getEnergy, formatNumber } from '../../utils/diary';
+import { getDailyPriceBackgroundColor, getAttributeBackgroundColor, getEnergy, formatNumber } from './utils';
 import type { HeadCell } from './DiaryTable';
 import type { Locale, Sex } from '../App';
 

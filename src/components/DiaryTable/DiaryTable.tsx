@@ -12,7 +12,7 @@ import type CategoryShape from '@torava/pim-utils/dist/models/Category';
 import type { Locale, Sex } from '../App';
 import DiaryTableHead from './DiaryTableHead';
 import { DayRow } from './DayRow';
-import { HIDDEN_COLUMNS } from '../../utils/diary';
+import { HIDDEN_COLUMNS } from './utils';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {

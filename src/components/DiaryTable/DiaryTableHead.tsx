@@ -7,7 +7,7 @@ import { Box, TableSortLabel } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 import { hasChildren } from '@torava/pim-utils';
 
-import { isAllExpanded } from '../../utils/diary';
+import { isAllExpanded } from './utils';
 import type { HeadCell, Order } from './DiaryTable';
 
 interface DiaryTableHeadProps {
