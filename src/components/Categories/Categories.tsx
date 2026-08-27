@@ -47,8 +47,8 @@ export function Categories({ attributes, categories, locale, onLocaleChange }: C
       aValue = a['name']?.[locale] || a['name']?.['en-US'] || '';
       bValue = b['name']?.[locale] || b['name']?.['en-US'] || '';
     } else if (orderBy === 'price') {
-      aValue = getCategoryItemWithPrice(a, items)?.transaction?.totalPrice || 0;
-      bValue = getCategoryItemWithPrice(b, items)?.transaction?.totalPrice || 0;
+      aValue = getCategoryItemWithPrice(a, items)?.price || 0;
+      bValue = getCategoryItemWithPrice(b, items)?.price || 0;
     } else if (orderBy === 'measure') {
       aValue = convertMeasure(
         getCategoryItemWithPrice(a, items)?.measure || 0,
@@ -148,7 +148,7 @@ export function Categories({ attributes, categories, locale, onLocaleChange }: C
             </TableCell>
             <TableCell>{category.name?.[locale] || category.name?.['en-US'] || ''}</TableCell>
             <TableCell>
-              {formatNumber(getCategoryItemWithPrice(category, items)?.transaction?.totalPrice, locale, {
+              {formatNumber(getCategoryItemWithPrice(category, items)?.price, locale, {
                 style: 'currency',
                 currency: 'EUR',
               })}
