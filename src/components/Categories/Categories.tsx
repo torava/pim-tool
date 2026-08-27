@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { hasChildren } from '@torava/pim-utils';
+import { convertMeasure, hasChildren } from '@torava/pim-utils';
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 import { visuallyHidden } from '@mui/utils';
 import { useLocation } from 'react-router-dom';
@@ -41,15 +41,29 @@ export function Categories({ attributes, categories, locale, onLocaleChange }: C
   const [currentCategoryId, setCurrentCategoryId] = useState<number>();
   const [items, setItems] = useState<ItemShape[]>([]);
 
-  const descendingComparator = <T,>(a: T, b: T, orderBy: string) => {
+  const descendingComparator = (a: CategoryShape, b: CategoryShape, orderBy: string) => {
     let aValue, bValue;
     if (orderBy === 'name') {
-      aValue = (a as CategoryShape)['name']?.[locale] || (a as CategoryShape)['name']?.['en-US'] || '';
-      bValue = (b as CategoryShape)['name']?.[locale] || (b as CategoryShape)['name']?.['en-US'] || '';
+      aValue = a['name']?.[locale] || a['name']?.['en-US'] || '';
+      bValue = b['name']?.[locale] || b['name']?.['en-US'] || '';
+    } else if (orderBy === 'price') {
+      aValue = getCategoryItemWithPrice(a, items)?.transaction?.totalPrice || 0;
+      bValue = getCategoryItemWithPrice(b, items)?.transaction?.totalPrice || 0;
+    } else if (orderBy === 'measure') {
+      aValue = convertMeasure(
+        getCategoryItemWithPrice(a, items)?.measure || 0,
+        getCategoryItemWithPrice(a, items)?.unit,
+        'kg'
+      );
+      bValue = convertMeasure(
+        getCategoryItemWithPrice(b, items)?.measure || 0,
+        getCategoryItemWithPrice(b, items)?.unit,
+        'kg'
+      );
     } else if (orderBy.startsWith('attribute-')) {
       const attributeId = parseInt(orderBy.split('-')[1]);
-      aValue = (a as CategoryShape).attributes?.find((attr) => attr.attributeId === attributeId)?.value || '';
-      bValue = (b as CategoryShape).attributes?.find((attr) => attr.attributeId === attributeId)?.value || '';
+      aValue = a.attributes?.find((attr) => attr.attributeId === attributeId)?.value || '';
+      bValue = b.attributes?.find((attr) => attr.attributeId === attributeId)?.value || '';
     }
     if (bValue! < aValue!) {
       return -1;
@@ -60,7 +74,7 @@ export function Categories({ attributes, categories, locale, onLocaleChange }: C
     return 0;
   };
 
-  const getComparator = (order: Order, orderBy: string): ((a: any, b: any) => number) => {
+  const getComparator = (order: Order, orderBy: string): ((a: CategoryShape, b: CategoryShape) => number) => {
     return order === 'desc'
       ? (a, b) => descendingComparator(a, b, orderBy)
       : (a, b) => -descendingComparator(a, b, orderBy);
@@ -140,7 +154,8 @@ export function Categories({ attributes, categories, locale, onLocaleChange }: C
               })}
             </TableCell>
             <TableCell>
-              {formatNumber(getCategoryItemWithPrice(category, items)?.measure, locale)} {getCategoryItemWithPrice(category, items)?.unit}
+              {formatNumber(getCategoryItemWithPrice(category, items)?.measure, locale)}{' '}
+              {getCategoryItemWithPrice(category, items)?.unit}
             </TableCell>
             {attributes.map((attribute) => {
               const categoryAttribute = category.attributes?.find(
@@ -204,8 +219,34 @@ export function Categories({ attributes, categories, locale, onLocaleChange }: C
                   ) : null}
                 </TableSortLabel>
               </TableCell>
-              <TableCell>Price</TableCell>
-              <TableCell>Measure</TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === 'price'}
+                  direction={orderBy === 'price' ? order : 'asc'}
+                  onClick={(event) => handleRequestSort(event, 'price')}
+                >
+                  Price
+                  {orderBy === 'price' ? (
+                    <Box component="span" sx={visuallyHidden}>
+                      {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                    </Box>
+                  ) : null}
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === 'measure'}
+                  direction={orderBy === 'measure' ? order : 'asc'}
+                  onClick={(event) => handleRequestSort(event, 'measure')}
+                >
+                  Measure
+                  {orderBy === 'measure' ? (
+                    <Box component="span" sx={visuallyHidden}>
+                      {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                    </Box>
+                  ) : null}
+                </TableSortLabel>
+              </TableCell>
               {attributes.map((attribute) => (
                 <TableCell key={attribute.id}>
                   <TableSortLabel
