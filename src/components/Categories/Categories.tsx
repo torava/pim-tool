@@ -22,7 +22,7 @@ import type ItemShape from '@torava/pim-utils/dist/models/Item';
 
 import { API_BASE_PATH, formatNumber, getParents } from '../DiaryTable/utils';
 import type { Locale } from '../App';
-import { getCategoryItemWithPrice } from './utils';
+import { getCategoryItemWithPrice, getItemMeasure, getItemUnit } from './utils';
 
 type Order = 'asc' | 'desc';
 
@@ -154,8 +154,8 @@ export function Categories({ attributes, categories, locale, onLocaleChange }: C
               })}
             </TableCell>
             <TableCell>
-              {formatNumber(getCategoryItemWithPrice(category, items)?.measure, locale)}{' '}
-              {getCategoryItemWithPrice(category, items)?.unit}
+              {formatNumber(getItemMeasure(getCategoryItemWithPrice(category, items)), locale)}{' '}
+              {getItemUnit(getCategoryItemWithPrice(category, items))}
             </TableCell>
             {attributes.map((attribute) => {
               const categoryAttribute = category.attributes?.find(
