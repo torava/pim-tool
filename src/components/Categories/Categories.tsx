@@ -51,13 +51,13 @@ export function Categories({ attributes, categories, locale, onLocaleChange }: C
       bValue = getCategoryItemWithPrice(b, items)?.price || 0;
     } else if (orderBy === 'measure') {
       aValue = convertMeasure(
-        getCategoryItemWithPrice(a, items)?.measure || 0,
-        getCategoryItemWithPrice(a, items)?.unit,
+        getItemMeasure(getCategoryItemWithPrice(a, items)) || 0,
+        getItemUnit(getCategoryItemWithPrice(a, items)),
         'kg'
       );
       bValue = convertMeasure(
-        getCategoryItemWithPrice(b, items)?.measure || 0,
-        getCategoryItemWithPrice(b, items)?.unit,
+        getItemMeasure(getCategoryItemWithPrice(b, items)) || 0,
+        getItemUnit(getCategoryItemWithPrice(b, items)),
         'kg'
       );
     } else if (orderBy.startsWith('attribute-')) {
