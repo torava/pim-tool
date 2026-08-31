@@ -22,7 +22,7 @@ import type ItemShape from '@torava/pim-utils/dist/models/Item';
 
 import { API_BASE_PATH, formatNumber, getParents } from '../DiaryTable/utils';
 import type { Locale } from '../App';
-import { getCategoryItemWithPrice, getItemMeasure, getItemUnit } from './utils';
+import { getCategoryItemWithPrice, getCategoryUnitPrice, getItemMeasure, getItemUnit } from './utils';
 
 type Order = 'asc' | 'desc';
 
@@ -49,6 +49,9 @@ export function Categories({ attributes, categories, locale, onLocaleChange }: C
     } else if (orderBy === 'price') {
       aValue = getCategoryItemWithPrice(a, items)?.price || 0;
       bValue = getCategoryItemWithPrice(b, items)?.price || 0;
+    } else if (orderBy === 'unitPrice') {
+      aValue = getCategoryUnitPrice(a, items) || 0;
+      bValue = getCategoryUnitPrice(b, items) || 0;
     } else if (orderBy === 'measure') {
       aValue = convertMeasure(
         getItemMeasure(getCategoryItemWithPrice(a, items)) || 0,
@@ -148,6 +151,11 @@ export function Categories({ attributes, categories, locale, onLocaleChange }: C
             </TableCell>
             <TableCell>{category.name?.[locale] || category.name?.['en-US'] || ''}</TableCell>
             <TableCell>
+              {getCategoryUnitPrice(category, items) && (
+                <>{formatNumber(getCategoryUnitPrice(category, items), locale)} €/kg</>
+              )}
+            </TableCell>
+            <TableCell>
               {formatNumber(getCategoryItemWithPrice(category, items)?.price, locale, {
                 style: 'currency',
                 currency: 'EUR',
@@ -213,6 +221,20 @@ export function Categories({ attributes, categories, locale, onLocaleChange }: C
                 >
                   Name
                   {orderBy === 'name' ? (
+                    <Box component="span" sx={visuallyHidden}>
+                      {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                    </Box>
+                  ) : null}
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === 'unitPrice'}
+                  direction={orderBy === 'unitPrice' ? order : 'asc'}
+                  onClick={(event) => handleRequestSort(event, 'unitPrice')}
+                >
+                  Unit price
+                  {orderBy === 'unitPrice' ? (
                     <Box component="span" sx={visuallyHidden}>
                       {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
                     </Box>
