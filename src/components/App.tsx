@@ -7,15 +7,18 @@ import MenuItem from '@mui/material/MenuItem';
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom';
 import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendation';
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 import type CategoryShape from '@torava/pim-utils/dist/models/Category';
+import type ItemShape from '@torava/pim-utils/dist/models/Item';
 
 import DiaryTable from './DiaryTable/DiaryTable';
 import { API_BASE_PATH } from './DiaryTable/utils';
-import { Tab, Tabs } from '@mui/material';
 import { Categories } from './Categories/Categories';
+import { Items } from './Items/Items';
 
 export type Sex = 'female' | 'male';
 
@@ -34,6 +37,7 @@ function AppContent() {
   const [recommendations, setRecommendations] = useState<RecommendationShape[]>([]);
   const [attributes, setAttributes] = useState<AttributeShape[]>([]);
   const [categories, setCategories] = useState<CategoryShape[]>([]);
+  const [items, setItems] = useState<ItemShape[]>([]);
   const [sex, setSex] = useState<Sex | ''>('');
   const [locale, setLocale] = useState<Locale>('fi-FI');
   const [uploading, setUploading] = useState(false);
@@ -42,10 +46,14 @@ function AppContent() {
   const fileUpload = React.createRef<HTMLInputElement>();
   const location = useLocation();
   const navigate = useNavigate();
-  const tab = location.pathname.includes('/categories') ? 1 : 0;
+  const tab = (location.pathname.includes('/categories') && 1) || (location.pathname.includes('/items') && 2) || 0;
 
   useEffect(() => {
-    if (location.pathname !== '/' && !location.pathname.includes('/categories')) {
+    if (
+      location.pathname !== '/' &&
+      !location.pathname.includes('/categories') &&
+      !location.pathname.includes('/items')
+    ) {
       navigate('/', { replace: true });
     }
   }, [location.pathname, navigate]);
@@ -131,6 +139,10 @@ function AppContent() {
         const categoryResponse = await fetch(`${API_BASE_PATH}/api/category?categoriesPerPage=10000&attributes=1`);
         const categoryData = await categoryResponse.json();
         setCategories(categoryData.results);
+
+        const itemResponse = await fetch(`${API_BASE_PATH}/api/item`);
+        const itemData = await itemResponse.json();
+        setItems(itemData);
       } catch (error) {
         console.error(error);
       }
@@ -147,20 +159,18 @@ function AppContent() {
       <Paper sx={{ width: '100%', overflow: 'hidden' }}>
         <Tabs
           value={tab}
-          onChange={(_event, newValue) => navigate(newValue === 1 ? '/categories' : '/')}
+          onChange={(_event, newValue) =>
+            navigate((newValue === 1 && '/categories') || (newValue === 2 && '/items') || '/')
+          }
           aria-label="tabs"
         >
           <Tab label="Diary" disableRipple />
           <Tab label="Categories" disableRipple />
+          <Tab label="Items" disableRipple />
         </Tabs>
         <Box hidden={tab !== 0}>
           <Box sx={{ m: 1 }}>
-            <Select
-              value={locale}
-              onChange={(event) => setLocale(event.target.value)}
-              size="small"
-              sx={{ mr: 1 }}
-            >
+            <Select value={locale} onChange={(event) => setLocale(event.target.value)} size="small" sx={{ mr: 1 }}>
               <MenuItem disabled value="">
                 <em>Locale</em>
               </MenuItem>
@@ -210,7 +220,16 @@ function AppContent() {
           )}
         </Box>
         <Box hidden={tab !== 1}>
-          <Categories attributes={attributes} categories={categories} locale={locale} onLocaleChange={setLocale} />
+          <Categories
+            attributes={attributes}
+            categories={categories}
+            items={items}
+            locale={locale}
+            onLocaleChange={setLocale}
+          />
+        </Box>
+        <Box hidden={tab !== 2}>
+          <Items attributes={attributes} items={items} locale={locale} onLocaleChange={setLocale} />
         </Box>
       </Paper>
     </Box>

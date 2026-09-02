@@ -20,26 +20,27 @@ import { visuallyHidden } from '@mui/utils';
 import { useLocation } from 'react-router-dom';
 import type ItemShape from '@torava/pim-utils/dist/models/Item';
 
-import { API_BASE_PATH, formatNumber, getParents } from '../DiaryTable/utils';
+import { formatNumber, getParents } from '../DiaryTable/utils';
 import type { Locale } from '../App';
-import { getCategoryItemWithPrice, getCategoryUnitPrice, getItemMeasure, getItemUnit } from './utils';
+import { getCategoryItemWithPrice, getCategoryUnitPrice } from './utils';
+import { getItemMeasure, getItemUnit } from '../../utils/items';
 
 type Order = 'asc' | 'desc';
 
 interface CategoriesProps {
   attributes: AttributeShape[];
   categories: CategoryShape[];
+  items: ItemShape[];
   locale: Locale;
   onLocaleChange: (locale: Locale) => void;
 }
 
-export function Categories({ attributes, categories, locale, onLocaleChange }: CategoriesProps) {
+export function Categories({ attributes, categories, items, locale, onLocaleChange }: CategoriesProps) {
   const { pathname, hash, key } = useLocation();
   const [expandedCategories, setExpandedCategories] = useState<Record<number, boolean>>({});
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<string>();
   const [currentCategoryId, setCurrentCategoryId] = useState<number>();
-  const [items, setItems] = useState<ItemShape[]>([]);
 
   const descendingComparator = (a: CategoryShape, b: CategoryShape, orderBy: string) => {
     let aValue, bValue;
@@ -117,19 +118,6 @@ export function Categories({ attributes, categories, locale, onLocaleChange }: C
       }
     }
   }, [currentCategoryId, expandedCategories, sortedCategories]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const itemResponse = await fetch(`${API_BASE_PATH}/api/item`);
-        const itemData = await itemResponse.json();
-        setItems(itemData);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchData();
-  }, []);
 
   const renderChildren = (parentId?: number, depth = 0): ReactElement[] =>
     sortedCategories
