@@ -4,4 +4,4 @@ An application for viewing diary files exported from [Fineli](https://fineli.fi/
 
 ## Try out
 
-Go to [https://pim-tool.s3.eu-central-1.amazonaws.com/index.html](https://pim-tool.s3.eu-central-1.amazonaws.com/index.html)
+Go to [http://pim-tool.s3-website.eu-central-1.amazonaws.com](http://pim-tool.s3-website.eu-central-1.amazonaws.com)
