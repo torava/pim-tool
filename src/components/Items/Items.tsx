@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Box,
+  Link,
   MenuItem,
   Select,
   Table,
@@ -15,6 +16,7 @@ import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 import { visuallyHidden } from '@mui/utils';
 import { useLocation } from 'react-router-dom';
 import type ItemShape from '@torava/pim-utils/dist/models/Item';
+import { Link as RouterLink } from 'react-router-dom';
 
 import type { Locale } from '../App';
 import { formatNumber } from '../DiaryTable/utils';
@@ -72,16 +74,14 @@ export function Items({ items, locale, onLocaleChange }: ItemsProps) {
   useEffect(() => {
     if (hash !== '' && sortedItems.length) {
       setTimeout(() => {
-        const id = hash.replace('#', '');
-        const currentItemId = Number(id.split('-')[1]);
-        const element = document.getElementById(`item-${currentItemId}`);
+        const id = Number(hash.replace('#', '').split('-')[1]);
+        const element = document.getElementById(`item-${id}`);
         if (element) {
           element.scrollIntoView();
         }
       }, 0);
     }
   }, [pathname, hash, key, sortedItems]);
-
 
   const handleRequestSort = (_event: React.MouseEvent<unknown>, property: string) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -163,14 +163,22 @@ export function Items({ items, locale, onLocaleChange }: ItemsProps) {
               </TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>{sortedItems.map((item) =>
-            <TableRow key={item.id}>
-              <TableCell>{item.product?.name}</TableCell>
-              <TableCell>{item.product?.category?.name?.[locale]}</TableCell>
-              <TableCell>{formatNumber(item.price, locale)} €</TableCell>
-              <TableCell>{formatNumber(getItemMeasure(item), locale)} {getItemUnit(item)}</TableCell>
-            </TableRow>
-          )}</TableBody>
+          <TableBody>
+            {sortedItems.map((item) => (
+              <TableRow key={item.id} id={`item-${item.id}`}>
+                <TableCell>{item.product?.name}</TableCell>
+                <TableCell>
+                  <Link to={`/categories#category-${item.product?.category?.id}`} component={RouterLink}>
+                    {item.product?.category?.name?.[locale]}
+                  </Link>
+                </TableCell>
+                <TableCell>{formatNumber(item.price, locale)} €</TableCell>
+                <TableCell>
+                  {formatNumber(getItemMeasure(item), locale)} {getItemUnit(item)}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
         </Table>
       </TableContainer>
     </>

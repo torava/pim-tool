@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState, type ReactElement } from 'react';
 import type CategoryShape from '@torava/pim-utils/dist/models/Category';
 import {
   Box,
+  Link,
   MenuItem,
   Select,
   Table,
@@ -19,6 +20,7 @@ import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 import { visuallyHidden } from '@mui/utils';
 import { useLocation } from 'react-router-dom';
 import type ItemShape from '@torava/pim-utils/dist/models/Item';
+import { Link as RouterLink } from 'react-router-dom';
 
 import { formatNumber, getParents } from '../DiaryTable/utils';
 import type { Locale } from '../App';
@@ -144,10 +146,12 @@ export function Categories({ attributes, categories, items, locale, onLocaleChan
               )}
             </TableCell>
             <TableCell>
-              {formatNumber(getCategoryItemWithPrice(category, items)?.price, locale, {
-                style: 'currency',
-                currency: 'EUR',
-              })}
+              <Link to={`/items#item-${getCategoryItemWithPrice(category, items)?.id}`} component={RouterLink}>
+                {formatNumber(getCategoryItemWithPrice(category, items)?.price, locale, {
+                  style: 'currency',
+                  currency: 'EUR',
+                })}
+              </Link>
             </TableCell>
             <TableCell>
               {formatNumber(getItemMeasure(getCategoryItemWithPrice(category, items)), locale)}{' '}
