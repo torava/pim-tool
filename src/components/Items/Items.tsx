@@ -17,6 +17,7 @@ import { visuallyHidden } from '@mui/utils';
 import { useLocation } from 'react-router-dom';
 import type ItemShape from '@torava/pim-utils/dist/models/Item';
 import { Link as RouterLink } from 'react-router-dom';
+import { convertMeasure } from '@torava/pim-utils';
 
 import type { Locale } from '../App';
 import { formatNumber } from '../DiaryTable/utils';
@@ -45,8 +46,8 @@ export function Items({ items, locale, onLocaleChange }: ItemsProps) {
       aValue = a.product?.category?.name?.[locale];
       bValue = b.product?.category?.name?.[locale];
     } else if (orderBy === 'measure') {
-      aValue = getItemMeasure(a);
-      bValue = getItemMeasure(b);
+      aValue = convertMeasure(getItemMeasure(a), getItemUnit(a), 'kg');
+      bValue = convertMeasure(getItemMeasure(b), getItemUnit(b), 'kg');
     } else {
       aValue = a[orderBy as keyof ItemShape];
       bValue = b[orderBy as keyof ItemShape];
