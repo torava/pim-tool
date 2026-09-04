@@ -1,4 +1,6 @@
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
+import type CategoryShape from '@torava/pim-utils/dist/models/Category';
+import type ItemShape from '@torava/pim-utils/dist/models/Item';
 import type RecommendationShape from '@torava/pim-utils/dist/models/Recommendation';
 
 export const mockAttributes: AttributeShape[] = [
@@ -60,5 +62,65 @@ export const mockRecommendations: RecommendationShape[] = [
     note: '',
     attributeId: 13,
     attribute: mockAttributes[3],
+  },
+];
+
+export const mockCategories: CategoryShape[] = [
+  {
+    id: 1,
+    name: {
+      'en-US': 'Food',
+      'fi-FI': 'Ruoka',
+      'sv-SE': 'Mat',
+    },
+    aliases: undefined,
+    parentId: undefined,
+    attributes: [],
+  },
+];
+
+export const mockItems: ItemShape[] = [
+  {
+    id: 1,
+    itemNumber: undefined,
+    text: 'Sondey luomu riisikakku',
+    price: 0.99,
+    quantity: undefined,
+    measure: undefined,
+    unit: undefined,
+    transactionId: 1,
+    productId: 1,
+    transaction: {
+      id: 1,
+      date: '2021-03-01T22:00:00.000Z',
+      partyId: undefined,
+      totalPrice: undefined,
+      totalPriceRead: undefined,
+      party: undefined,
+    },
+    product: {
+      id: 1,
+      productNumber: undefined,
+      name: 'Sondey Bio Organic Rice Cakes',
+      aliases: undefined,
+      contributionList: undefined,
+      quantity: undefined,
+      measure: 130,
+      unit: 'g',
+      manufacturerId: undefined,
+      brandId: undefined,
+      categoryId: 2213,
+      manufacturer: undefined,
+      category: {
+        id: 2213,
+        name: {
+          'en-US': 'Rice cake',
+          'fi-FI': 'Riisikakku, riisikeksi',
+          'sv-SE': 'Riskaka, riskex',
+        },
+        aliases: undefined,
+        parentId: 55,
+      },
+    },
   },
 ];
