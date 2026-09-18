@@ -45,6 +45,13 @@ export function Categories({ attributes, categories, items, locale, onLocaleChan
   const [orderBy, setOrderBy] = useState<string>();
   const [currentCategoryId, setCurrentCategoryId] = useState<number>();
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => setDebouncedSearchTerm(searchTerm), 500);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [searchTerm]);
 
   const descendingComparator = (a: CategoryShape, b: CategoryShape, orderBy: string) => {
     let aValue, bValue;
@@ -94,7 +101,7 @@ export function Categories({ attributes, categories, items, locale, onLocaleChan
   );
 
   const filteredCategories = useMemo(() => {
-    const query = searchTerm.trim().toLowerCase();
+    const query = debouncedSearchTerm.trim().toLowerCase();
     if (!query) {
       return sortedCategories;
     }
@@ -120,10 +127,10 @@ export function Categories({ attributes, categories, items, locale, onLocaleChan
     });
 
     return sortedCategories.filter((category) => visibleCategoryIds.has(category.id!));
-  }, [categories, locale, searchTerm, sortedCategories]);
+  }, [categories, debouncedSearchTerm, locale, sortedCategories]);
 
   const renderCategoryName = (name: string) => {
-    const query = searchTerm.trim();
+    const query = debouncedSearchTerm.trim();
     if (!query) {
       return name;
     }
@@ -143,7 +150,7 @@ export function Categories({ attributes, categories, items, locale, onLocaleChan
   };
 
   useEffect(() => {
-    if (!searchTerm.trim()) {
+    if (!debouncedSearchTerm.trim()) {
       return;
     }
 
@@ -160,7 +167,7 @@ export function Categories({ attributes, categories, items, locale, onLocaleChan
       ...previousCategories,
       ...Object.fromEntries([...parentIds].map((categoryId) => [categoryId, true])),
     }));
-  }, [categories, filteredCategories, searchTerm]);
+  }, [categories, debouncedSearchTerm, filteredCategories]);
 
   useEffect(() => {
     if (hash !== '' && sortedCategories.length) {
