@@ -6,6 +6,7 @@ import {
   MenuItem,
   Select,
   Table,
+  TextField,
   TableBody,
   TableCell,
   TableContainer,
@@ -43,6 +44,7 @@ export function Categories({ attributes, categories, items, locale, onLocaleChan
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<string>();
   const [currentCategoryId, setCurrentCategoryId] = useState<number>();
+  const [searchTerm, setSearchTerm] = useState('');
 
   const descendingComparator = (a: CategoryShape, b: CategoryShape, orderBy: string) => {
     let aValue, bValue;
@@ -91,6 +93,55 @@ export function Categories({ attributes, categories, items, locale, onLocaleChan
     [categories, order, orderBy]
   );
 
+  const filteredCategories = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) {
+      return sortedCategories;
+    }
+
+    const matchingCategoryIds = new Set<number>();
+    categories.forEach((category) => {
+      const localizedName = category.name?.[locale] || category.name?.['en-US'] || '';
+      const localizedNameLower = localizedName.toLowerCase();
+      const alternativeNames = Object.values(category.name || {}).join(' ').toLowerCase();
+      if (localizedNameLower.includes(query) || alternativeNames.includes(query)) {
+        matchingCategoryIds.add(category.id!);
+      }
+    });
+
+    const visibleCategoryIds = new Set<number>();
+    matchingCategoryIds.forEach((categoryId) => {
+      visibleCategoryIds.add(categoryId);
+      getParents(categoryId, categories).forEach((parent) => {
+        if (parent.id) {
+          visibleCategoryIds.add(parent.id);
+        }
+      });
+    });
+
+    return sortedCategories.filter((category) => visibleCategoryIds.has(category.id!));
+  }, [categories, locale, searchTerm, sortedCategories]);
+
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      return;
+    }
+
+    const parentIds = new Set<number>();
+    filteredCategories.forEach((category) => {
+      getParents(category.id!, categories).forEach((parent) => {
+        if (parent.id) {
+          parentIds.add(parent.id);
+        }
+      });
+    });
+
+    setExpandedCategories((previousCategories) => ({
+      ...previousCategories,
+      ...Object.fromEntries([...parentIds].map((categoryId) => [categoryId, true])),
+    }));
+  }, [categories, filteredCategories, searchTerm]);
+
   useEffect(() => {
     if (hash !== '' && sortedCategories.length) {
       setTimeout(() => {
@@ -122,7 +173,7 @@ export function Categories({ attributes, categories, items, locale, onLocaleChan
   }, [currentCategoryId, expandedCategories, sortedCategories]);
 
   const renderChildren = (parentId?: number, depth = 0): ReactElement[] =>
-    sortedCategories
+    filteredCategories
       .filter((category) => (parentId ? category.parentId === parentId : !category.parentId))
       .map((category) => (
         <React.Fragment key={category.id}>
@@ -180,7 +231,7 @@ export function Categories({ attributes, categories, items, locale, onLocaleChan
 
   return (
     <>
-      <Box sx={{ m: 1 }}>
+      <Box sx={{ m: 1, display: 'flex', alignItems: 'center' }}>
         <Select value={locale} onChange={(event) => onLocaleChange(event.target.value)} size="small" sx={{ mr: 1 }}>
           <MenuItem disabled value="">
             <em>Locale</em>
@@ -189,6 +240,14 @@ export function Categories({ attributes, categories, items, locale, onLocaleChan
           <MenuItem value="en-US">English</MenuItem>
           <MenuItem value="sv-SE">Swedish</MenuItem>
         </Select>
+        <TextField
+          size="small"
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+          placeholder="Search by category name"
+          inputProps={{ 'aria-label': 'Search by category name' }}
+          sx={{ minWidth: 220 }}
+        />
       </Box>
       <TableContainer>
         <Table size="small">
