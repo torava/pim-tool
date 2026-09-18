@@ -122,6 +122,26 @@ export function Categories({ attributes, categories, items, locale, onLocaleChan
     return sortedCategories.filter((category) => visibleCategoryIds.has(category.id!));
   }, [categories, locale, searchTerm, sortedCategories]);
 
+  const renderCategoryName = (name: string) => {
+    const query = searchTerm.trim();
+    if (!query) {
+      return name;
+    }
+
+    const matchIndex = name.toLocaleLowerCase().indexOf(query.toLocaleLowerCase());
+    if (matchIndex === -1) {
+      return name;
+    }
+
+    return (
+      <>
+        {name.slice(0, matchIndex)}
+        <strong>{name.slice(matchIndex, matchIndex + query.length)}</strong>
+        {name.slice(matchIndex + query.length)}
+      </>
+    );
+  };
+
   useEffect(() => {
     if (!searchTerm.trim()) {
       return;
@@ -190,7 +210,7 @@ export function Categories({ attributes, categories, items, locale, onLocaleChan
               {hasChildren(category.id, categories) &&
                 (expandedCategories[category.id!] ? <ExpandLess /> : <ExpandMore />)}
             </TableCell>
-            <TableCell>{category.name?.[locale] || category.name?.['en-US'] || ''}</TableCell>
+            <TableCell>{renderCategoryName(category.name?.[locale] || category.name?.['en-US'] || '')}</TableCell>
             <TableCell>
               {getCategoryUnitPrice(category, items) && (
                 <>{formatNumber(getCategoryUnitPrice(category, items), locale)} €/kg</>
