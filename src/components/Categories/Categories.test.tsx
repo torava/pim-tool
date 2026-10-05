@@ -1,9 +1,6 @@
-import { afterEach, expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-
-afterEach(() => {
-  document.body.innerHTML = '';
-});
+import { userEvent } from 'vitest/browser';
 
 import { Categories } from './Categories';
 import { mockAttributes, mockCategories, mockItems } from '../../utils/mccks';
@@ -62,9 +59,8 @@ test('filters categories by name', async () => {
   const searchInput = document.querySelector('input[aria-label="Search by category name"]') as HTMLInputElement;
   expect(searchInput).not.toBeNull();
 
-  searchInput.value = 'fruit';
-  searchInput.dispatchEvent(new Event('input', { bubbles: true }));
-  searchInput.dispatchEvent(new Event('change', { bubbles: true }));
+  userEvent.type(searchInput, 'fruit');
 
+  await expect.element(getByText('Food')).not.toBeInTheDocument();
   await expect.element(getByText('Fruit')).toBeInTheDocument();
 });

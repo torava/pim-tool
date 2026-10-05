@@ -11,6 +11,7 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
+  TextField,
 } from '@mui/material';
 import type AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 import { visuallyHidden } from '@mui/utils';
@@ -36,6 +37,14 @@ export function Items({ items, locale, onLocaleChange }: ItemsProps) {
   const { pathname, hash, key } = useLocation();
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<string>();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => setDebouncedSearchTerm(searchTerm), 500);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [searchTerm]);
 
   const descendingComparator = (a: ItemShape, b: ItemShape, orderBy: string) => {
     let aValue, bValue;
@@ -72,6 +81,41 @@ export function Items({ items, locale, onLocaleChange }: ItemsProps) {
     [items, order, orderBy]
   );
 
+  const filteredItems = useMemo(() => {
+    const query = debouncedSearchTerm.trim().toLowerCase();
+    if (!query) {
+      return sortedItems;
+    }
+
+    return sortedItems.filter((item) => {
+      const name = item.product?.name || '';
+      const aliasList = Array.isArray(item.product?.aliases) ? item.product.aliases : [];
+      const aliasText = aliasList.join(' ').toLowerCase();
+
+      return name.toLowerCase().includes(query) || aliasText.includes(query);
+    });
+  }, [debouncedSearchTerm, sortedItems]);
+
+  const renderItemName = (name: string) => {
+    const query = debouncedSearchTerm.trim();
+    if (!query) {
+      return name;
+    }
+
+    const matchIndex = name.toLocaleLowerCase().indexOf(query.toLocaleLowerCase());
+    if (matchIndex === -1) {
+      return name;
+    }
+
+    return (
+      <>
+        {name.slice(0, matchIndex)}
+        <strong>{name.slice(matchIndex, matchIndex + query.length)}</strong>
+        {name.slice(matchIndex + query.length)}
+      </>
+    );
+  };
+
   useEffect(() => {
     if (hash !== '' && sortedItems.length) {
       setTimeout(() => {
@@ -92,7 +136,7 @@ export function Items({ items, locale, onLocaleChange }: ItemsProps) {
 
   return (
     <>
-      <Box sx={{ m: 1 }}>
+      <Box sx={{ m: 1, display: 'flex', alignItems: 'center' }}>
         <Select value={locale} onChange={(event) => onLocaleChange(event.target.value)} size="small" sx={{ mr: 1 }}>
           <MenuItem disabled value="">
             <em>Locale</em>
@@ -101,6 +145,14 @@ export function Items({ items, locale, onLocaleChange }: ItemsProps) {
           <MenuItem value="en-US">English</MenuItem>
           <MenuItem value="sv-SE">Swedish</MenuItem>
         </Select>
+        <TextField
+          size="small"
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+          placeholder="Search by item name"
+          slotProps={{ htmlInput: { 'aria-label': 'Search by item name' } }}
+          sx={{ minWidth: 220 }}
+        />
       </Box>
       <TableContainer>
         <Table size="small">
@@ -165,9 +217,9 @@ export function Items({ items, locale, onLocaleChange }: ItemsProps) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedItems.map((item) => (
+            {filteredItems.map((item) => (
               <TableRow key={item.id} id={`item-${item.id}`}>
-                <TableCell>{item.product?.name}</TableCell>
+                <TableCell>{renderItemName(item.product?.name || '')}</TableCell>
                 <TableCell>
                   <Link to={`/categories#category-${item.product?.category?.id}`} component={RouterLink}>
                     {item.product?.category?.name?.[locale]}

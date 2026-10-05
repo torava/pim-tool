@@ -272,7 +272,7 @@ export function Categories({ attributes, categories, items, locale, onLocaleChan
           value={searchTerm}
           onChange={(event) => setSearchTerm(event.target.value)}
           placeholder="Search by category name"
-          inputProps={{ 'aria-label': 'Search by category name' }}
+          slotProps={{ htmlInput: { 'aria-label': 'Search by category name' } }}
           sx={{ minWidth: 220 }}
         />
       </Box>
