@@ -136,13 +136,13 @@ function AppContent() {
         const attributeData = await attributeResponse.json();
         setAttributes(attributeData);
 
-        const categoryResponse = await fetch(`${API_BASE_PATH}/api/category?categoriesPerPage=10000&attributes=1`);
-        const categoryData = await categoryResponse.json();
-        setCategories(categoryData.results);
-
         const itemResponse = await fetch(`${API_BASE_PATH}/api/item`);
         const itemData = await itemResponse.json();
         setItems(itemData);
+
+        const categoryResponse = await fetch(`${API_BASE_PATH}/api/category?categoriesPerPage=10000&attributes=1`);
+        const categoryData = await categoryResponse.json();
+        setCategories(categoryData.results);
       } catch (error) {
         console.error(error);
       }
